@@ -1,0 +1,191 @@
+{
+  "almacen": {
+    "direccion": "Calle Central 123, Centro",
+    "coordenadas": {
+      "lat": -12.0464,
+      "lng": -77.0428
+    }
+  },
+  "pedidos": [
+    {
+      "id": 1,
+      "cliente_nombre": "Juan Pérez",
+      "direccion": "Av. Brasil 456, San Borja",
+      "distancia_km": 3.5,
+      "tiempo_estimado_min": 15,
+      "prioridad": "alta",
+      "trafico": "bajo",
+      "ruta_bloqueada": false,
+      "estado": "pendiente",
+      "coordenadas": {
+        "lat": -12.0895,
+        "lng": -77.0087
+      }
+    },
+    {
+      "id": 2,
+      "cliente_nombre": "María García",
+      "direccion": "Jr. Los Olivos 789, Los Olivos",
+      "distancia_km": 8.2,
+      "tiempo_estimado_min": 35,
+      "prioridad": "media",
+      "trafico": "medio",
+      "ruta_bloqueada": false,
+      "estado": "pendiente",
+      "coordenadas": {
+        "lat": -11.9685,
+        "lng": -77.0325
+      }
+    },
+    {
+      "id": 3,
+      "cliente_nombre": "Carlos Rodríguez",
+      "direccion": "Av. La Marina 321, San Miguel",
+      "distancia_km": 5.8,
+      "tiempo_estimado_min": 25,
+      "prioridad": "alta",
+      "trafico": "alto",
+      "ruta_bloqueada": false,
+      "estado": "pendiente",
+      "coordenadas": {
+        "lat": -12.0785,
+        "lng": -77.0925
+      }
+    },
+    {
+      "id": 4,
+      "cliente_nombre": "Ana Martínez",
+      "direccion": "Calle Las Flores 567, Surco",
+      "distancia_km": 12.4,
+      "tiempo_estimado_min": 50,
+      "prioridad": "baja",
+      "trafico": "bajo",
+      "ruta_bloqueada": false,
+      "estado": "pendiente",
+      "coordenadas": {
+        "lat": -12.1585,
+        "lng": -76.9925
+      }
+    },
+    {
+      "id": 5,
+      "cliente_nombre": "Pedro Sánchez",
+      "direccion": "Av. Benavides 890, Miraflores",
+      "distancia_km": 6.7,
+      "tiempo_estimado_min": 30,
+      "prioridad": "alta",
+      "trafico": "medio",
+      "ruta_bloqueada": false,
+      "estado": "pendiente",
+      "coordenadas": {
+        "lat": -12.1085,
+        "lng": -77.0325
+      }
+    },
+    {
+      "id": 6,
+      "cliente_nombre": "Luisa Fernández",
+      "direccion": "Jr. Comas 234, Comas",
+      "distancia_km": 14.2,
+      "tiempo_estimado_min": 58,
+      "prioridad": "baja",
+      "trafico": "alto",
+      "ruta_bloqueada": false,
+      "estado": "pendiente",
+      "coordenadas": {
+        "lat": -11.9385,
+        "lng": -77.0425
+      }
+    },
+    {
+      "id": 7,
+      "cliente_nombre": "Roberto Díaz",
+      "direccion": "Av. Garcilaso 678, Centro",
+      "distancia_km": 1.8,
+      "tiempo_estimado_min": 10,
+      "prioridad": "alta",
+      "trafico": "bajo",
+      "ruta_bloqueada": false,
+      "estado": "pendiente",
+      "coordenadas": {
+        "lat": -12.0585,
+        "lng": -77.0428
+      }
+    },
+    {
+      "id": 8,
+      "cliente_nombre": "Carmen López",
+      "direccion": "Calle Primavera 456, La Molina",
+      "distancia_km": 10.5,
+      "tiempo_estimado_min": 45,
+      "prioridad": "media",
+      "trafico": "medio",
+      "ruta_bloqueada": false,
+      "estado": "pendiente",
+      "coordenadas": {
+        "lat": -12.0785,
+        "lng": -76.9425
+      }
+    },
+    {
+      "id": 9,
+      "cliente_nombre": "Jorge Torres",
+      "direccion": "Av. Tupac Amaru 890, Independencia",
+      "distancia_km": 11.8,
+      "tiempo_estimado_min": 55,
+      "prioridad": "baja",
+      "trafico": "alto",
+      "ruta_bloqueada": true,
+      "estado": "pendiente",
+      "coordenadas": {
+        "lat": -11.9585,
+        "lng": -77.0625
+      }
+    },
+    {
+      "id": 10,
+      "cliente_nombre": "Sofía Ramírez",
+      "direccion": "Av. San Juan 345, Surquillo",
+      "distancia_km": 4.2,
+      "tiempo_estimado_min": 20,
+      "prioridad": "media",
+      "trafico": "bajo",
+      "ruta_bloqueada": false,
+      "estado": "pendiente",
+      "coordenadas": {
+        "lat": -12.1185,
+        "lng": -77.0125
+      }
+    },
+    {
+      "id": 11,
+      "cliente_nombre": "Diego Morales",
+      "direccion": "Calle Los Pinos 789, Lince",
+      "distancia_km": 2.9,
+      "tiempo_estimado_min": 12,
+      "prioridad": "alta",
+      "trafico": "bajo",
+      "ruta_bloqueada": false,
+      "estado": "pendiente",
+      "coordenadas": {
+        "lat": -12.0885,
+        "lng": -77.0325
+      }
+    },
+    {
+      "id": 12,
+      "cliente_nombre": "Patricia Castro",
+      "direccion": "Av. Colonial 567, Pueblo Libre",
+      "distancia_km": 4.8,
+      "tiempo_estimado_min": 22,
+      "prioridad": "media",
+      "trafico": "medio",
+      "ruta_bloqueada": false,
+      "estado": "pendiente",
+      "coordenadas": {
+        "lat": -12.0685,
+        "lng": -77.0725
+      }
+    }
+  ]
+}
