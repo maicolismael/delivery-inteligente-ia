@@ -1,187 +1,155 @@
+"""
+main.py - Conecta entorno + agente + recompensas + Q-Learning y ejecuta la simulación.
+"""
+
 import json
 from pathlib import Path
 
 from src.agente import AgenteDelivery
 from src.qlearning import QLearningDelivery
+from src.recompensas import calcular_costo_ruta, calcular_recompensa
 
-
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR     = Path(__file__).resolve().parent.parent
 RUTA_DATASET = BASE_DIR / "data" / "pedidos_simulados.json"
 
 
-PEDIDOS_DEMO = [
-    {
-        "id_pedido": 1,
-        "destino": "Cliente 1",
-        "distancia": 4.5,
-        "tiempo": 12,
-        "trafico": "medio",
-        "prioridad": "alta",
-        "estado_ruta": "libre"
-    },
-    {
-        "id_pedido": 2,
-        "destino": "Cliente 2",
-        "distancia": 2.8,
-        "tiempo": 8,
-        "trafico": "bajo",
-        "prioridad": "media",
-        "estado_ruta": "libre"
-    },
-    {
-        "id_pedido": 3,
-        "destino": "Cliente 3",
-        "distancia": 6.0,
-        "tiempo": 18,
-        "trafico": "alto",
-        "prioridad": "baja",
-        "estado_ruta": "libre"
-    },
-    {
-        "id_pedido": 4,
-        "destino": "Cliente 4",
-        "distancia": 3.5,
-        "tiempo": 10,
-        "trafico": "alto",
-        "prioridad": "alta",
-        "estado_ruta": "bloqueada"
-    }
-]
+# ─── Carga de pedidos ─────────────────────────────────────────────────────────
 
-
-def cargar_pedidos():
+def cargar_pedidos() -> list[dict]:
     """
     Carga pedidos desde data/pedidos_simulados.json.
-    Si el archivo no existe o está vacío, usa pedidos de demostración.
+    Normaliza los campos al formato que usan agente.py y qlearning.py:
+      id_pedido, destino, distancia, tiempo, trafico, prioridad, estado_ruta
     """
     try:
-        with open(RUTA_DATASET, "r", encoding="utf-8") as archivo:
-            datos = json.load(archivo)
+        with open(RUTA_DATASET, "r", encoding="utf-8") as f:
+            datos = json.load(f)
 
-            if isinstance(datos, list):
-                return datos
+        pedidos_raw = datos.get("pedidos", datos) if isinstance(datos, dict) else datos
 
-            if isinstance(datos, dict) and "pedidos" in datos:
-                return datos["pedidos"]
+        normalizados = []
+        for p in pedidos_raw:
+            normalizados.append({
+                # campos que usan agente.py / qlearning.py
+                "id_pedido":   p.get("id_pedido", p.get("id")),
+                "destino":     p.get("destino", p.get("cliente_nombre", "Desconocido")),
+                "distancia":   p.get("distancia", p.get("distancia_km", 0)),
+                "tiempo":      p.get("tiempo", p.get("tiempo_estimado_min", 0)),
+                "trafico":     p.get("trafico", "bajo"),
+                "prioridad":   p.get("prioridad", "media"),
+
+                # NUEVO
+                "estado":      p.get("estado", "pendiente"),
+
+                "estado_ruta": "bloqueada" if p.get("ruta_bloqueada", False) else "libre",
+
+                # campos originales del JSON (para recompensas.py)
+                "distancia_km":        p.get("distancia_km", p.get("distancia", 0)),
+                "tiempo_estimado_min": p.get("tiempo_estimado_min", p.get("tiempo", 0)),
+                "ruta_bloqueada":      p.get("ruta_bloqueada", False),
+            })
+
+        return normalizados
 
     except (FileNotFoundError, json.JSONDecodeError):
-        pass
-
-    return PEDIDOS_DEMO.copy()
+        return []
 
 
-def obtener_id_pedido(pedido):
+def obtener_id_pedido(pedido: dict):
     return pedido.get("id_pedido", pedido.get("id"))
 
 
-def buscar_pedido_por_id(pedidos, id_pedido):
-    for pedido in pedidos:
-        if obtener_id_pedido(pedido) == id_pedido:
-            return pedido
-
+def buscar_pedido_por_id(pedidos: list[dict], id_pedido) -> dict | None:
+    for p in pedidos:
+        if obtener_id_pedido(p) == id_pedido:
+            return p
     return None
 
 
-def calcular_recompensa_temporal(pedido):
+# ─── Simulación ───────────────────────────────────────────────────────────────
+
+def ejecutar_simulacion_beta(episodios: int = 3) -> dict:
     """
-    Recompensa temporal para la beta.
-    Luego puede reemplazarse por src/recompensas.py.
+    Ejecuta la simulación Q-Learning usando los pedidos reales del JSON.
+
+    Flujo por episodio:
+      estado → acción → recompensa → nuevo estado → actualizar Tabla Q
     """
-    recompensa = 10
 
-    distancia = pedido.get("distancia", 0)
-    tiempo = pedido.get("tiempo", 0)
-    trafico = pedido.get("trafico", "bajo")
-    prioridad = pedido.get("prioridad", "baja")
-    estado_ruta = pedido.get("estado_ruta", "libre")
-
-    recompensa -= distancia
-    recompensa -= tiempo * 0.2
-
-    if trafico == "medio":
-        recompensa -= 3
-    elif trafico == "alto":
-        recompensa -= 6
-
-    if prioridad == "media":
-        recompensa += 3
-    elif prioridad == "alta":
-        recompensa += 6
-
-    if estado_ruta == "bloqueada":
-        recompensa -= 20
-
-    return round(recompensa, 2)
-
-
-def calcular_costo_ruta_temporal(pedido):
-    """
-    Cálculo temporal del Costo de Ruta para la beta.
-    """
-    distancia = pedido.get("distancia", 0)
-    tiempo = pedido.get("tiempo", 0)
-    trafico = pedido.get("trafico", "bajo")
-    estado_ruta = pedido.get("estado_ruta", "libre")
-
-    penalizacion = 0
-
-    if trafico == "medio":
-        penalizacion += 3
-    elif trafico == "alto":
-        penalizacion += 6
-
-    if estado_ruta == "bloqueada":
-        penalizacion += 20
-
-    return round(distancia + tiempo + penalizacion, 2)
-
-
-def ejecutar_simulacion_beta(episodios=3):
-    """
-    Ejecuta una simulación básica para el segundo avance.
-
-    No representa el entrenamiento final.
-    Solo demuestra que el flujo Q-Learning funciona.
-    """
     qlearning = QLearningDelivery(alpha=0.1, gamma=0.9, epsilon=0.3)
     resultados = []
 
     for numero_episodio in range(1, episodios + 1):
+
         pedidos_pendientes = cargar_pedidos()
         agente = AgenteDelivery(posicion_inicial="almacen")
 
         ruta = []
-        recompensa_total = 0
-        costo_total = 0
+        recompensa_total = 0.0
+        costo_total = 0.0
 
         while pedidos_pendientes:
+
             estado = agente.obtener_estado(pedidos_pendientes)
             clave_estado = qlearning.crear_clave_estado(estado)
 
             acciones = agente.obtener_acciones(pedidos_pendientes)
-            accion = qlearning.elegir_accion(clave_estado, acciones)
+
+            accion = qlearning.elegir_accion(
+                clave_estado,
+                acciones
+            )
 
             if accion is None:
                 break
 
-            pedido = buscar_pedido_por_id(pedidos_pendientes, accion)
+            pedido = buscar_pedido_por_id(
+                pedidos_pendientes,
+                accion
+            )
 
             if pedido is None:
                 break
 
-            recompensa = calcular_recompensa_temporal(pedido)
-            costo = calcular_costo_ruta_temporal(pedido)
+            # ─── calcular recompensa y costo ──────────────────────
+
+            recompensa = calcular_recompensa(
+                pedido,
+                entregado_exitosamente=True
+            )
+
+            costo = calcular_costo_ruta(pedido)
+
+            # ─── registrar entrega ────────────────────────────────
 
             agente.registrar_entrega(pedido)
+
+            # ─── ACTUALIZAR ESTADO DEL PEDIDO ────────────────────
+
+            pedido["estado"] = "entregado"
+
+            # ─── quitar de pendientes ────────────────────────────
 
             pedidos_pendientes = [
                 p for p in pedidos_pendientes
                 if obtener_id_pedido(p) != accion
             ]
 
-            nuevo_estado = agente.obtener_estado(pedidos_pendientes)
-            clave_nuevo_estado = qlearning.crear_clave_estado(nuevo_estado)
-            nuevas_acciones = agente.obtener_acciones(pedidos_pendientes)
+            # ─── nuevo estado ────────────────────────────────────
+
+            nuevo_estado = agente.obtener_estado(
+                pedidos_pendientes
+            )
+
+            clave_nuevo_estado = qlearning.crear_clave_estado(
+                nuevo_estado
+            )
+
+            nuevas_acciones = agente.obtener_acciones(
+                pedidos_pendientes
+            )
+
+            # ─── actualizar tabla Q ──────────────────────────────
 
             qlearning.actualizar_q(
                 clave_estado,
@@ -191,11 +159,14 @@ def ejecutar_simulacion_beta(episodios=3):
                 nuevas_acciones
             )
 
+            # ─── guardar historial de ruta ───────────────────────
+
             ruta.append({
                 "pedido": obtener_id_pedido(pedido),
                 "destino": pedido.get("destino"),
-                "recompensa": recompensa,
-                "costo": costo
+                "recompensa": round(recompensa, 2),
+                "costo": round(costo, 2),
+                "estado": pedido["estado"]
             })
 
             recompensa_total += recompensa
@@ -216,24 +187,32 @@ def ejecutar_simulacion_beta(episodios=3):
     }
 
 
+# ─── Ejecución directa ────────────────────────────────────────────────────────
+
 if __name__ == "__main__":
+
     resultado = ejecutar_simulacion_beta(episodios=3)
 
     print("SIMULACIÓN BETA - DELIVERY INTELIGENTE")
-    print("--------------------------------------")
+    print("─" * 50)
 
-    for episodio in resultado["resultados"]:
-        print(f"\nEpisodio: {episodio['episodio']}")
-        print(f"Entregas completadas: {episodio['entregas_completadas']}")
-        print(f"Recompensa total: {episodio['recompensa_total']}")
-        print(f"Costo total: {episodio['costo_total']}")
-        print("Ruta tomada:")
+    for ep in resultado["resultados"]:
 
-        for paso in episodio["ruta"]:
+        print(f"\nEpisodio {ep['episodio']}")
+        print(f"  Entregas completadas : {ep['entregas_completadas']}")
+        print(f"  Recompensa total     : {ep['recompensa_total']}")
+        print(f"  Costo total          : {ep['costo_total']}")
+
+        print("  Ruta tomada:")
+
+        for paso in ep["ruta"]:
+
             print(
-                f"  Pedido {paso['pedido']} -> {paso['destino']} "
-                f"| Recompensa: {paso['recompensa']} "
+                f"    Pedido {paso['pedido']} → "
+                f"{paso['destino']} "
+                f"| Estado: {paso['estado']} "
+                f"| Recomp: {paso['recompensa']} "
                 f"| Costo: {paso['costo']}"
             )
 
-    print(f"\nValores almacenados en Tabla Q: {resultado['cantidad_valores_q']}")
+    print(f"\nValores en Tabla Q: {resultado['cantidad_valores_q']}")
