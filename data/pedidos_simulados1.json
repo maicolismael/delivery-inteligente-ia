@@ -1,0 +1,311 @@
+{
+  "almacen": {
+    "direccion": "Av. Heroínas esq. 25 de Mayo, Cercado, Cochabamba",
+    "coordenadas": {
+      "lat": -17.3935,
+      "lng": -66.157
+    }
+  },
+  "pedidos": [
+    {
+      "id": 1,
+      "cliente_nombre": "Juan Carlos Mendoza",
+      "direccion": "Av. Heroínas 245, Cercado",
+      "distancia_km": 1.2,
+      "tiempo_estimado_min": 8,
+      "prioridad": "alta",
+      "trafico": "bajo",
+      "ruta_bloqueada": false,
+      "estado": "pendiente",
+      "coordenadas": {
+        "lat": -17.3895,
+        "lng": -66.1568
+      }
+    },
+    {
+      "id": 2,
+      "cliente_nombre": "María Fernanda Quiroga",
+      "direccion": "Calle Bolívar 567, Cercado",
+      "distancia_km": 2.1,
+      "tiempo_estimado_min": 12,
+      "prioridad": "media",
+      "trafico": "medio",
+      "ruta_bloqueada": false,
+      "estado": "pendiente",
+      "coordenadas": {
+        "lat": -17.394,
+        "lng": -66.151
+      }
+    },
+    {
+      "id": 3,
+      "cliente_nombre": "Carlos Rodrigo Vargas",
+      "direccion": "Av. América 789, Queru Queru",
+      "distancia_km": 3.8,
+      "tiempo_estimado_min": 18,
+      "prioridad": "alta",
+      "trafico": "bajo",
+      "ruta_bloqueada": false,
+      "estado": "pendiente",
+      "coordenadas": {
+        "lat": -17.372,
+        "lng": -66.168
+      }
+    },
+    {
+      "id": 4,
+      "cliente_nombre": "Ana Patricia Flores",
+      "direccion": "Calle Sucre 1023, Cala Cala",
+      "distancia_km": 5.2,
+      "tiempo_estimado_min": 25,
+      "prioridad": "baja",
+      "trafico": "bajo",
+      "ruta_bloqueada": false,
+      "estado": "pendiente",
+      "coordenadas": {
+        "lat": -17.365,
+        "lng": -66.175
+      }
+    },
+    {
+      "id": 5,
+      "cliente_nombre": "Pedro Luis Soria",
+      "direccion": "Av. Blanco Galindo km 3, Sacaba",
+      "distancia_km": 8.4,
+      "tiempo_estimado_min": 35,
+      "prioridad": "media",
+      "trafico": "alto",
+      "ruta_bloqueada": false,
+      "estado": "pendiente",
+      "coordenadas": {
+        "lat": -17.389,
+        "lng": -66.098
+      }
+    },
+    {
+      "id": 6,
+      "cliente_nombre": "Luisa Beatriz Torrez",
+      "direccion": "Av. Petrolera 456, Colcapirhua",
+      "distancia_km": 10.1,
+      "tiempo_estimado_min": 42,
+      "prioridad": "baja",
+      "trafico": "medio",
+      "ruta_bloqueada": false,
+      "estado": "pendiente",
+      "coordenadas": {
+        "lat": -17.398,
+        "lng": -66.243
+      }
+    },
+    {
+      "id": 7,
+      "cliente_nombre": "Roberto Ángel Gutiérrez",
+      "direccion": "Calle La Paz 88, Cercado",
+      "distancia_km": 1.8,
+      "tiempo_estimado_min": 10,
+      "prioridad": "alta",
+      "trafico": "bajo",
+      "ruta_bloqueada": false,
+      "estado": "pendiente",
+      "coordenadas": {
+        "lat": -17.387,
+        "lng": -66.159
+      }
+    },
+    {
+      "id": 8,
+      "cliente_nombre": "Carmen Rosa Pedraza",
+      "direccion": "Av. 6 de Agosto 321, Muyurina",
+      "distancia_km": 4.5,
+      "tiempo_estimado_min": 22,
+      "prioridad": "media",
+      "trafico": "medio",
+      "ruta_bloqueada": false,
+      "estado": "pendiente",
+      "coordenadas": {
+        "lat": -17.406,
+        "lng": -66.164
+      }
+    },
+    {
+      "id": 9,
+      "cliente_nombre": "Jorge Alfredo Mamani",
+      "direccion": "Av. Circunvalación 678, Sarco",
+      "distancia_km": 6.7,
+      "tiempo_estimado_min": 30,
+      "prioridad": "alta",
+      "trafico": "medio",
+      "ruta_bloqueada": false,
+      "estado": "pendiente",
+      "coordenadas": {
+        "lat": -17.412,
+        "lng": -66.172
+      }
+    },
+    {
+      "id": 10,
+      "cliente_nombre": "Sofía Alejandra Ramos",
+      "direccion": "Calle Jordán 234, Cercado",
+      "distancia_km": 2.9,
+      "tiempo_estimado_min": 15,
+      "prioridad": "media",
+      "trafico": "bajo",
+      "ruta_bloqueada": false,
+      "estado": "pendiente",
+      "coordenadas": {
+        "lat": -17.392,
+        "lng": -66.1535
+      }
+    },
+    {
+      "id": 11,
+      "cliente_nombre": "Diego Martín Salinas",
+      "direccion": "Av. Ayacucho 112, Cercado",
+      "distancia_km": 1.5,
+      "tiempo_estimado_min": 9,
+      "prioridad": "alta",
+      "trafico": "bajo",
+      "ruta_bloqueada": false,
+      "estado": "pendiente",
+      "coordenadas": {
+        "lat": -17.3905,
+        "lng": -66.1555
+      }
+    },
+    {
+      "id": 12,
+      "cliente_nombre": "Patricia Ivonne Castro",
+      "direccion": "Av. Santa Cruz 890, Villa Busch",
+      "distancia_km": 7.3,
+      "tiempo_estimado_min": 33,
+      "prioridad": "media",
+      "trafico": "alto",
+      "ruta_bloqueada": false,
+      "estado": "pendiente",
+      "coordenadas": {
+        "lat": -17.42,
+        "lng": -66.16
+      }
+    },
+    {
+      "id": 13,
+      "cliente_nombre": "Ricardo Emilio Alcócer",
+      "direccion": "Calle Nataniel Aguirre 445, Cercado",
+      "distancia_km": 2.4,
+      "tiempo_estimado_min": 13,
+      "prioridad": "baja",
+      "trafico": "bajo",
+      "ruta_bloqueada": false,
+      "estado": "pendiente",
+      "coordenadas": {
+        "lat": -17.3935,
+        "lng": -66.152
+      }
+    },
+    {
+      "id": 14,
+      "cliente_nombre": "Valeria Cristina Oporto",
+      "direccion": "Av. Melchor Urquidi 567, Queru Queru",
+      "distancia_km": 4.1,
+      "tiempo_estimado_min": 20,
+      "prioridad": "alta",
+      "trafico": "medio",
+      "ruta_bloqueada": false,
+      "estado": "pendiente",
+      "coordenadas": {
+        "lat": -17.37,
+        "lng": -66.171
+      }
+    },
+    {
+      "id": 15,
+      "cliente_nombre": "Fernando José Arce",
+      "direccion": "Av. Blanco Galindo km 7, Sacaba",
+      "distancia_km": 12.6,
+      "tiempo_estimado_min": 52,
+      "prioridad": "baja",
+      "trafico": "alto",
+      "ruta_bloqueada": true,
+      "estado": "pendiente",
+      "coordenadas": {
+        "lat": -17.386,
+        "lng": -66.056
+      }
+    },
+    {
+      "id": 16,
+      "cliente_nombre": "Gloria Esther Hinojosa",
+      "direccion": "Calle España 789, Cercado",
+      "distancia_km": 3.2,
+      "tiempo_estimado_min": 16,
+      "prioridad": "media",
+      "trafico": "bajo",
+      "ruta_bloqueada": false,
+      "estado": "pendiente",
+      "coordenadas": {
+        "lat": -17.396,
+        "lng": -66.149
+      }
+    },
+    {
+      "id": 17,
+      "cliente_nombre": "Héctor Manuel Lara",
+      "direccion": "Av. Tadeo Haenke 234, Cala Cala",
+      "distancia_km": 6,
+      "tiempo_estimado_min": 28,
+      "prioridad": "alta",
+      "trafico": "medio",
+      "ruta_bloqueada": false,
+      "estado": "pendiente",
+      "coordenadas": {
+        "lat": -17.362,
+        "lng": -66.18
+      }
+    },
+    {
+      "id": 18,
+      "cliente_nombre": "Daniela Ruth Montoya",
+      "direccion": "Av. Tupac Katari 901, Vinto",
+      "distancia_km": 14.8,
+      "tiempo_estimado_min": 58,
+      "prioridad": "baja",
+      "trafico": "bajo",
+      "ruta_bloqueada": false,
+      "estado": "pendiente",
+      "coordenadas": {
+        "lat": -17.405,
+        "lng": -66.31
+      }
+    },
+    {
+      "id": 19,
+      "cliente_nombre": "Marcos Antonio Pinto",
+      "direccion": "Calle Colombia 456, Sarco",
+      "distancia_km": 5.8,
+      "tiempo_estimado_min": 27,
+      "prioridad": "media",
+      "trafico": "medio",
+      "ruta_bloqueada": false,
+      "estado": "pendiente",
+      "coordenadas": {
+        "lat": -17.409,
+        "lng": -66.168
+      }
+    },
+    {
+      "id": 20,
+      "cliente_nombre": "Silvia Paola Guzmán",
+      "direccion": "Av. Libertador 123, Quillacollo",
+      "distancia_km": 11.3,
+      "tiempo_estimado_min": 45,
+      "prioridad": "alta",
+      "trafico": "alto",
+      "ruta_bloqueada": false,
+      "estado": "pendiente",
+      "coordenadas": {
+        "lat": -17.398,
+        "lng": -66.278
+      }
+    }
+  ]
+}
