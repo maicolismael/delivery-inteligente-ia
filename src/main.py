@@ -356,7 +356,17 @@ def ejecutar_simulacion_beta(
     for numero_episodio in range(1, episodios + 1):
 
         pedidos_pendientes = cargar_pedidos()
-        agente = AgenteDelivery(posicion_inicial="almacen")
+        datos_raw = cargar_datos_originales()
+        coord_alm = datos_raw.get("almacen", {}).get("coordenadas", {})
+        coords_almacen = (
+            coord_alm.get("lat", -12.0464),
+            coord_alm.get("lng", -77.0428)
+        )
+ 
+        agente = AgenteDelivery(
+            posicion_inicial="almacen",
+            coords_almacen=coords_almacen
+        )
 
         ruta = []
         recompensa_total = 0.0
@@ -399,12 +409,23 @@ def ejecutar_simulacion_beta(
                 break
 
             # 5. Calcular recompensa y costo.
+            # Guardar coords ANTES de entregar (posicion de donde sale)
+            pos_actual = agente.coordenadas_actuales   # NUEVO
+ 
             recompensa = calcular_recompensa(
                 pedido,
-                entregado_exitosamente=True
+                entregado_exitosamente=True,
+                pos_actual_coords=pos_actual            # NUEVO
             )
-
-            costo = calcular_costo_ruta(pedido)
+ 
+            costo = calcular_costo_ruta(
+                pedido,
+                pos_actual_coords=pos_actual            # NUEVO
+            )
+ 
+            # IMPORTANTE: registrar DESPUES de calcular costo
+            # (para usar la posicion previa, no la nueva)
+            agente.registrar_entrega(pedido)
 
             # 6. Generar explicación humana de la decisión.
             explicacion_decision = explicar_decision_pedido(
@@ -495,7 +516,7 @@ def ejecutar_simulacion_beta(
             "entregas_completadas": len(agente.pedidos_entregados),
             "historial_acciones": agente.historial_acciones
         }
-
+        qlearning.decaer_epsilon(tasa=0.99, minimo=0.05)   
         resultados.append(resultado_episodio)
         historial_recompensas.append(round(recompensa_total, 2))
         historial_costos.append(round(costo_total, 2))

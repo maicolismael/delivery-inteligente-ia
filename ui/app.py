@@ -1000,7 +1000,7 @@ class VentanaPrincipal(QMainWindow):
         self.spin_episodios = QSpinBox()
         self.spin_episodios.setMinimum(1)
         self.spin_episodios.setMaximum(1000)
-        self.spin_episodios.setValue(1)
+        self.spin_episodios.setValue(200)
         self.spin_episodios.setToolTip(
             "Cantidad de veces que el agente repetirá la simulación para aprender."
         )
@@ -1009,7 +1009,7 @@ class VentanaPrincipal(QMainWindow):
         self.spin_epsilon.setMinimum(0.0)
         self.spin_epsilon.setMaximum(1.0)
         self.spin_epsilon.setSingleStep(0.05)
-        self.spin_epsilon.setValue(0.30)
+        self.spin_epsilon.setValue(0.50)
         self.spin_epsilon.setToolTip(
             "Probabilidad de exploración. Alto = prueba rutas nuevas. Bajo = usa lo aprendido."
         )

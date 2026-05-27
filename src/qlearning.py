@@ -164,56 +164,56 @@ class QLearningDelivery:
 
     def elegir_accion_detallada(self, estado, acciones):
         """
-        Elige una acción usando epsilon-greedy y devuelve explicación.
-
-        Puede elegir por:
-        - exploración: prueba una acción aleatoria;
-        - explotación: elige la acción con mayor valor Q conocido.
-
-        Esta función es importante para la interfaz, porque permite mostrar:
-        - qué acción eligió;
-        - por qué la eligió;
-        - qué valores Q tenía disponibles.
+        CAMBIO: desempate aleatorio cuando varios pedidos tienen Q igual.
+        Antes, max() con todos Q=0 siempre elegía el mismo pedido.
         """
         if not acciones:
             return {
-                "accion": None,
+                "accion":        None,
                 "tipo_decision": "sin_acciones",
-                "motivo": "No existen acciones disponibles.",
-                "valores_q": {}
+                "motivo":        "No hay acciones disponibles.",
+                "valores_q":     {}
             }
-
+ 
         valores_q = self.obtener_valores_acciones(estado, acciones)
-
-        # Exploración: el agente prueba una acción aleatoria.
+ 
+        # Exploracion aleatoria
         if random.random() < self.epsilon:
             accion = random.choice(acciones)
-
             return {
-                "accion": accion,
+                "accion":        accion,
                 "tipo_decision": "exploración",
-                "motivo": (
-                    f"El agente exploró una acción aleatoria "
-                    f"porque epsilon = {self.epsilon}."
-                ),
-                "valores_q": valores_q
+                "motivo":        f"Exploración aleatoria (epsilon={self.epsilon:.3f}).",
+                "valores_q":     valores_q
             }
-
-        # Explotación: el agente usa lo aprendido.
-        accion = max(
-            acciones,
-            key=lambda accion_actual: self.obtener_valor_q(estado, accion_actual)
-        )
-
+ 
+        # Explotacion: elegir el mejor Q, con desempate aleatorio
+        max_q   = max(self.obtener_valor_q(estado, a) for a in acciones)
+        mejores = [a for a in acciones
+                   if abs(self.obtener_valor_q(estado, a) - max_q) < 1e-9]
+        accion  = random.choice(mejores)
+ 
         return {
-            "accion": accion,
+            "accion":        accion,
             "tipo_decision": "explotación",
-            "motivo": (
-                "El agente eligió la acción con mayor valor Q conocido "
-                "para este estado."
+            "motivo":        (
+                f"Mejor Q={round(max_q, 4)} "
+                f"({'desempate aleatorio' if len(mejores) > 1 else 'único mejor'})."
             ),
-            "valores_q": valores_q
+            "valores_q":     valores_q
         }
+ 
+    # ── NUEVO metodo: agregar al final de la clase ─────────────────
+ 
+    def decaer_epsilon(self, tasa: float = 0.99, minimo: float = 0.05):
+        """
+        Reduce epsilon al final de cada episodio.
+        El agente empieza explorando mucho y va explotando mas.
+ 
+        tasa=0.99 con 200 episodios:  0.50 * 0.99^200 ≈ 0.067 (cerca del minimo)
+        tasa=0.995 con 200 episodios: 0.50 * 0.995^200 ≈ 0.18  (mas lento)
+        """
+        self.epsilon = max(minimo, self.epsilon * tasa)
 
     # =========================================================
     # ACTUALIZACIÓN DE TABLA Q

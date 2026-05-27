@@ -1,278 +1,104 @@
 """
-Módulo de cálculo de recompensas para el sistema de delivery con Q-Learning.
-
-Este módulo implementa las funciones para calcular el costo de ruta (CR) y
-las recompensas del agente basándose en las características de los pedidos.
+recompensas.py
+ 
+Calcula el costo de ruta y la recompensa del agente.
+ 
+CAMBIO PRINCIPAL: calcular_costo_ruta ahora acepta pos_actual_coords (lat, lng).
+Si se pasa, usa la distancia real desde la posicion actual al cliente.
+Si no se pasa, usa distancia_km del JSON (compatibilidad con codigo anterior).
+ 
+Esto es lo que permite que el agente aprenda el orden optimo:
+antes, la recompensa era siempre la misma sin importar el orden de entregas.
 """
-
-from typing import Dict, Union
-
-
-def calcular_costo_ruta(pedido: Dict) -> float:
+ 
+import math
+from typing import Dict, Optional, Tuple
+ 
+ 
+# ─── Constantes de penalizacion ───────────────────────────────────────────────
+ 
+PEN_TRAFICO_ALTO   =  5.0
+PEN_TRAFICO_MEDIO  =  2.0
+PEN_RUTA_BLOQUEADA = 10.0
+PEN_PRIORIDAD_BAJA =  2.0
+BON_PRIORIDAD_ALTA = -3.0   # bonificacion: reduce el costo
+ 
+ 
+# ─── Distancia entre coordenadas ──────────────────────────────────────────────
+ 
+def calcular_distancia_coordenadas(
+    pos_actual: Tuple[float, float],
+    coord_destino: Dict
+) -> float:
     """
-    Calcula el Costo de Ruta (CR) para un pedido específico.
-    
-    El CR representa cuán costoso es entregar un pedido, considerando:
-    - Distancia a recorrer
-    - Tiempo estimado (normalizado)
-    - Penalizaciones por tráfico alto, rutas bloqueadas, etc.
-    - Bonificaciones por prioridad alta (para incentivar entregas prioritarias)
-    
-    Fórmula: CR = distancia + (tiempo / 10) + penalizaciones
-    
-    Args:
-        pedido: Diccionario con los datos del pedido. Debe contener:
-            - distancia_km (float): Distancia en kilómetros
-            - tiempo_estimado_min (int): Tiempo estimado en minutos
-            - trafico (str): Nivel de tráfico ("bajo", "medio", "alto")
-            - ruta_bloqueada (bool): Si la ruta está bloqueada
-            - prioridad (str, opcional): Prioridad del pedido ("alta", "media", "baja")
-    
-    Returns:
-        float: Valor del Costo de Ruta (CR). Valores más bajos indican rutas más favorables.
+    Distancia en km entre la posicion actual y el destino.
+    Usa aproximacion plana (suficiente para distancias urbanas < 50 km).
+ 
+    pos_actual: (lat, lng) del agente en este momento
+    coord_destino: dict con claves 'lat' y 'lng'
     """
-    # Extraer valores del pedido con valores por defecto para robustez
-    distancia = pedido.get('distancia_km', 0)
-    tiempo = pedido.get('tiempo_estimado_min', 0)
-    trafico = pedido.get('trafico', 'bajo').lower()
-    ruta_bloqueada = pedido.get('ruta_bloqueada', False)
-    prioridad = pedido.get('prioridad', 'media').lower()
-    
-    # Calcular componentes base del costo
-    costo_distancia = distancia
-    costo_tiempo = tiempo / 10  # Normalizado para que no domine sobre distancia
-    
-    # Calcular penalizaciones
-    penalizaciones = 0.0
-    
-    # Penalización por tráfico alto (más difícil navegar, mayor consumo)
-    if trafico == "alto":
-        penalizaciones += 5
-    # Penalización por tráfico medio (moderadamente difícil)
-    elif trafico == "medio":
-        penalizaciones += 2
-    
-    # Penalización severa por ruta bloqueada (debe buscar ruta alternativa)
-    if ruta_bloqueada:
-        penalizaciones += 10
-    
-    # Ajustes por prioridad (incentivos para priorizar ciertos pedidos)
-    if prioridad == "alta":
-        # Bonificación: reduce el costo para incentivar entregas prioritarias
-        penalizaciones -= 3
-    elif prioridad == "baja":
-        # Penalización leve para desincentivar pedidos de baja prioridad
-        penalizaciones += 2
-    
-    # Calcular CR total
-    cr = costo_distancia + costo_tiempo + penalizaciones
-    
-    return cr
-
-
-def calcular_recompensa(pedido: Dict, entregado_exitosamente: bool) -> float:
+    lat1, lng1 = pos_actual
+    lat2 = coord_destino.get("lat", lat1)
+    lng2 = coord_destino.get("lng", lng1)
+ 
+    dlat = (lat2 - lat1) * 111.0
+    dlng = (lng2 - lng1) * 111.0 * math.cos(math.radians((lat1 + lat2) / 2.0))
+ 
+    return math.sqrt(dlat ** 2 + dlng ** 2)
+ 
+ 
+# ─── Costo de ruta ────────────────────────────────────────────────────────────
+ 
+def calcular_costo_ruta(
+    pedido: Dict,
+    pos_actual_coords: Optional[Tuple[float, float]] = None
+) -> float:
     """
-    Calcula la recompensa para el agente basándose en el costo de ruta y el resultado.
-    
-    Lógica de recompensa:
-    - Si la entrega fue exitosa: recompensa = 100 - CR
-      * Entregas con menor costo dan mayor recompensa
-      * El valor base 100 asegura recompensas positivas para entregas exitosas
-    - Si la entrega falló: recompensa = -CR
-      * Penalización proporcional al costo de la ruta intentada
-    
-    Args:
-        pedido: Diccionario con los datos del pedido.
-        entregado_exitosamente: Booleano indicando si la entrega fue exitosa.
-    
-    Returns:
-        float: Valor de la recompensa. Positivo para entregas exitosas, negativo para fallas.
+    CR = distancia + (tiempo / 10) + penalizaciones
+ 
+    pos_actual_coords: (lat, lng) de donde esta el agente AHORA.
+    Si se pasa, la distancia es desde esa posicion al cliente.
+    Si no se pasa, usa distancia_km del JSON (desde el almacen).
     """
-    cr = calcular_costo_ruta(pedido)
-    
-    if entregado_exitosamente:
-        # Recompensa positiva: 100 menos el costo (incentiva entregas eficientes)
-        recompensa = 100 - cr
+    if pos_actual_coords is not None:
+        coord_destino = pedido.get("coordenadas", {})
+        distancia = calcular_distancia_coordenadas(pos_actual_coords, coord_destino)
     else:
-        # Penalización: negativo del costo (penaliza intentos fallosos)
-        recompensa = -cr
-    
-    return recompensa
-
-
-def calcular_recompensa_por_tiempo(pedido: Dict, tiempo_real_min: int) -> float:
+        distancia = pedido.get("distancia_km", pedido.get("distancia", 0))
+ 
+    tiempo    = pedido.get("tiempo_estimado_min", pedido.get("tiempo", 0))
+    trafico   = pedido.get("trafico", "bajo").lower()
+    bloqueada = pedido.get("ruta_bloqueada", False)
+    prioridad = pedido.get("prioridad", "media").lower()
+ 
+    penalizaciones = 0.0
+ 
+    if trafico == "alto":
+        penalizaciones += PEN_TRAFICO_ALTO
+    elif trafico == "medio":
+        penalizaciones += PEN_TRAFICO_MEDIO
+ 
+    if bloqueada:
+        penalizaciones += PEN_RUTA_BLOQUEADA
+ 
+    if prioridad == "alta":
+        penalizaciones += BON_PRIORIDAD_ALTA
+    elif prioridad == "baja":
+        penalizaciones += PEN_PRIORIDAD_BAJA
+ 
+    return distancia + (tiempo / 10.0) + penalizaciones
+ 
+ 
+# ─── Recompensa ───────────────────────────────────────────────────────────────
+ 
+def calcular_recompensa(
+    pedido: Dict,
+    entregado_exitosamente: bool,
+    pos_actual_coords: Optional[Tuple[float, float]] = None
+) -> float:
     """
-    Calcula una recompensa adicional basada en la diferencia entre tiempo estimado y real.
-    
-    Esta función opcional permite dar bonificaciones por entregas más rápidas
-    que lo estimado, o penalizaciones por entregas más lentas.
-    
-    Args:
-        pedido: Diccionario con los datos del pedido.
-        tiempo_real_min: Tiempo real que tomó la entrega en minutos.
-    
-    Returns:
-        float: Ajuste de recompensa basado en el tiempo. Positivo si fue más rápido, negativo si fue más lento.
+    Entrega exitosa : R = 100 - CR
+    Entrega fallida : R = -CR
     """
-    tiempo_estimado = pedido.get('tiempo_estimado_min', 0)
-    diferencia = tiempo_estimado - tiempo_real_min
-    
-    # Si fue más rápido que lo estimado, dar bonificación
-    # Si fue más lento, dar penalización
-    ajuste = diferencia * 0.5  # Factor de ajuste
-    
-    return ajuste
-
-
-if __name__ == "__main__":
-    """
-    Ejemplo de uso de las funciones de cálculo de recompensas.
-    """
-    print("=" * 70)
-    print("EJEMPLO DE USO DEL MÓDULO DE RECOMPENSAS")
-    print("=" * 70)
-    
-    # Definir pedidos de prueba con diferentes características
-    pedidos_prueba = [
-        {
-            "id": 1,
-            "cliente_nombre": "Juan Pérez",
-            "distancia_km": 3.5,
-            "tiempo_estimado_min": 15,
-            "trafico": "bajo",
-            "ruta_bloqueada": False,
-            "prioridad": "alta"
-        },
-        {
-            "id": 2,
-            "cliente_nombre": "María García",
-            "distancia_km": 8.2,
-            "tiempo_estimado_min": 35,
-            "trafico": "medio",
-            "ruta_bloqueada": False,
-            "prioridad": "media"
-        },
-        {
-            "id": 3,
-            "cliente_nombre": "Carlos Rodríguez",
-            "distancia_km": 5.8,
-            "tiempo_estimado_min": 25,
-            "trafico": "alto",
-            "ruta_bloqueada": False,
-            "prioridad": "alta"
-        },
-        {
-            "id": 4,
-            "cliente_nombre": "Ana Martínez",
-            "distancia_km": 12.4,
-            "tiempo_estimado_min": 50,
-            "trafico": "bajo",
-            "ruta_bloqueada": False,
-            "prioridad": "baja"
-        },
-        {
-            "id": 5,
-            "cliente_nombre": "Jorge Torres",
-            "distancia_km": 11.8,
-            "tiempo_estimado_min": 55,
-            "trafico": "alto",
-            "ruta_bloqueada": True,
-            "prioridad": "baja"
-        },
-        {
-            "id": 6,
-            "cliente_nombre": "Roberto Díaz",
-            "distancia_km": 1.8,
-            "tiempo_estimado_min": 10,
-            "trafico": "bajo",
-            "ruta_bloqueada": False,
-            "prioridad": "alta"
-        }
-    ]
-    
-    print("\n--- CÁLCULO DE COSTO DE RUTA (CR) ---")
-    print(f"{'ID':<5} {'Cliente':<20} {'Dist':<8} {'Tiempo':<8} {'Tráfico':<8} {'Bloq':<6} {'Prior':<8} {'CR':<10}")
-    print("-" * 80)
-    
-    for pedido in pedidos_prueba:
-        cr = calcular_costo_ruta(pedido)
-        print(f"{pedido['id']:<5} {pedido['cliente_nombre']:<20} "
-              f"{pedido['distancia_km']:<8.1f} {pedido['tiempo_estimado_min']:<8} "
-              f"{pedido['trafico']:<8} {str(pedido['ruta_bloqueada']):<6} "
-              f"{pedido['prioridad']:<8} {cr:<10.2f}")
-    
-    print("\n--- CÁLCULO DE RECOMPENSAS (ENTREGA EXITOSA) ---")
-    print(f"{'ID':<5} {'Cliente':<20} {'CR':<10} {'Recompensa':<12}")
-    print("-" * 50)
-    
-    for pedido in pedidos_prueba:
-        cr = calcular_costo_ruta(pedido)
-        recompensa = calcular_recompensa(pedido, entregado_exitosamente=True)
-        print(f"{pedido['id']:<5} {pedido['cliente_nombre']:<20} {cr:<10.2f} {recompensa:<12.2f}")
-    
-    print("\n--- CÁLCULO DE RECOMPENSAS (ENTREGA FALLIDA) ---")
-    print(f"{'ID':<5} {'Cliente':<20} {'CR':<10} {'Recompensa':<12}")
-    print("-" * 50)
-    
-    for pedido in pedidos_prueba:
-        cr = calcular_costo_ruta(pedido)
-        recompensa = calcular_recompensa(pedido, entregado_exitosamente=False)
-        print(f"{pedido['id']:<5} {pedido['cliente_nombre']:<20} {cr:<10.2f} {recompensa:<12.2f}")
-    
-    print("\n--- ANÁLISIS DE ESCENARIOS ESPECÍFICOS ---")
-    
-    # Escenario 1: Pedido corto con prioridad alta (ideal)
-    pedido_ideal = {
-        "distancia_km": 2.0,
-        "tiempo_estimado_min": 10,
-        "trafico": "bajo",
-        "ruta_bloqueada": False,
-        "prioridad": "alta"
-    }
-    cr_ideal = calcular_costo_ruta(pedido_ideal)
-    rec_ideal = calcular_recompensa(pedido_ideal, True)
-    print(f"Pedido ideal (corto, prioridad alta, sin tráfico): CR = {cr_ideal:.2f}, Recompensa = {rec_ideal:.2f}")
-    
-    # Escenario 2: Pedido largo con ruta bloqueada (peor caso)
-    pedido_peor = {
-        "distancia_km": 15.0,
-        "tiempo_estimado_min": 60,
-        "trafico": "alto",
-        "ruta_bloqueada": True,
-        "prioridad": "baja"
-    }
-    cr_peor = calcular_costo_ruta(pedido_peor)
-    rec_peor = calcular_recompensa(pedido_peor, True)
-    print(f"Pedido peor (largo, bloqueado, tráfico alto): CR = {cr_peor:.2f}, Recompensa = {rec_peor:.2f}")
-    
-    # Escenario 3: Pedido medio con tráfico medio
-    pedido_medio = {
-        "distancia_km": 5.0,
-        "tiempo_estimado_min": 20,
-        "trafico": "medio",
-        "ruta_bloqueada": False,
-        "prioridad": "media"
-    }
-    cr_medio = calcular_costo_ruta(pedido_medio)
-    rec_medio = calcular_recompensa(pedido_medio, True)
-    print(f"Pedido medio (distancia y tráfico moderados): CR = {cr_medio:.2f}, Recompensa = {rec_medio:.2f}")
-    
-    print("\n--- AJUSTE POR TIEMPO REAL (FUNCIÓN OPCIONAL) ---")
-    pedido_tiempo = pedidos_prueba[0]  # Pedido 1
-    tiempo_estimado = pedido_tiempo['tiempo_estimado_min']
-    
-    print(f"Pedido {pedido_tiempo['id']}: Tiempo estimado = {tiempo_estimado} min")
-    
-    # Caso 1: Entrega más rápida
-    tiempo_rapido = 12
-    ajuste_rapido = calcular_recompensa_por_tiempo(pedido_tiempo, tiempo_rapido)
-    print(f"  Tiempo real = {tiempo_rapido} min (más rápido): Ajuste = {ajuste_rapido:.2f}")
-    
-    # Caso 2: Entrega más lenta
-    tiempo_lento = 20
-    ajuste_lento = calcular_recompensa_por_tiempo(pedido_tiempo, tiempo_lento)
-    print(f"  Tiempo real = {tiempo_lento} min (más lento): Ajuste = {ajuste_lento:.2f}")
-    
-    print("\n" + "=" * 70)
-    print("FIN DEL EJEMPLO")
-    print("=" * 70)
+    cr = calcular_costo_ruta(pedido, pos_actual_coords=pos_actual_coords)
+    return (100.0 - cr) if entregado_exitosamente else -cr
