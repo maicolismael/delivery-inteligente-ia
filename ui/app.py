@@ -1,730 +1,1412 @@
 """
-app.py - Interfaz CustomTkinter para el Sistema de Despacho Inteligente
-Dashboard moderno + métricas Q-Learning
-Ejecutar: python ui/app.py
+ui/app.py
+
+Interfaz gráfica para el sistema Delivery Inteligente con Q-Learning.
+
+Esta versión usa PySide6 y organiza la información en varias ventanas:
+- Ventana principal
+- Ventana de pedidos
+- Ventana de mapa offline animado
+- Ventana de aprendizaje detallado
+- Ventana de Tabla Q
+
+Ejecutar desde la raíz del proyecto:
+
+python ui/app.py
 """
 
 import sys
-import os
-import threading
+from pathlib import Path
 
-# ─────────────────────────────────────────────────────────────
-# RUTAS
-# ─────────────────────────────────────────────────────────────
-ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-
-sys.path.insert(0, ROOT)
-sys.path.insert(0, os.path.join(ROOT, "src"))
-
-# ─────────────────────────────────────────────────────────────
-# IMPORTS
-# ─────────────────────────────────────────────────────────────
-import customtkinter as ctk
-
-from metricas import (
-    simular_pedidos,
-    resumen_simulacion,
-    cargar_datos
+from PySide6.QtCore import Qt, QTimer, QPointF, QRectF
+from PySide6.QtGui import QColor, QPen, QBrush, QFont, QPainter
+from PySide6.QtWidgets import (
+    QApplication,
+    QDialog,
+    QDoubleSpinBox,
+    QFrame,
+    QGridLayout,
+    QGroupBox,
+    QHBoxLayout,
+    QLabel,
+    QMainWindow,
+    QMessageBox,
+    QPushButton,
+    QPlainTextEdit,
+    QScrollArea,
+    QSpinBox,
+    QTableWidget,
+    QTableWidgetItem,
+    QVBoxLayout,
+    QWidget,
+    QGraphicsView,
+    QGraphicsScene,
 )
 
-from src.main import ejecutar_simulacion_beta
-from src.recompensas import (
-    calcular_costo_ruta,
-    calcular_recompensa
+
+# =========================================================
+# RUTAS DEL PROYECTO
+# =========================================================
+
+ROOT = Path(__file__).resolve().parent.parent
+
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+
+# =========================================================
+# IMPORTS DEL SISTEMA
+# =========================================================
+
+from src.main import (
+    cargar_datos_originales,
+    ejecutar_simulacion_beta,
+    resetear_aprendizaje,
 )
 
-# ─────────────────────────────────────────────────────────────
-# TEMA
-# ─────────────────────────────────────────────────────────────
-ctk.set_appearance_mode("light")
-ctk.set_default_color_theme("blue")
 
-# ─────────────────────────────────────────────────────────────
+# =========================================================
 # COLORES
-# ─────────────────────────────────────────────────────────────
-C_BG          = "#f4f6f9"
-C_CARD        = "#ffffff"
-C_HEADER      = "#1a1a2e"
+# =========================================================
 
-C_TEXT        = "#222222"
-C_SUBTEXT     = "#6c757d"
+COLOR_FONDO = "#f4f6f9"
+COLOR_CARD = "#ffffff"
+COLOR_HEADER = "#111827"
+COLOR_AZUL = "#2563eb"
+COLOR_AZUL_OSCURO = "#1d4ed8"
+COLOR_VERDE = "#16a34a"
+COLOR_ROJO = "#dc2626"
+COLOR_NARANJA = "#ea580c"
+COLOR_MORADO = "#7c3aed"
+COLOR_AMARILLO = "#facc15"
+COLOR_GRIS = "#6b7280"
+COLOR_TEXTO = "#1f2937"
 
-C_BLUE        = "#2563eb"
-C_GREEN       = "#16a34a"
-C_RED         = "#dc2626"
-C_ORANGE      = "#ea580c"
-C_YELLOW      = "#ca8a04"
 
-# ─────────────────────────────────────────────────────────────
-# APP
-# ─────────────────────────────────────────────────────────────
-class App(ctk.CTk):
+# =========================================================
+# TARJETA DE MÉTRICA
+# =========================================================
 
-    def __init__(self):
+class TarjetaMetrica(QFrame):
+    """
+    Tarjeta visual para mostrar una métrica importante.
 
+    Ejemplo:
+    -------------------
+    | Mejor costo      |
+    | 120.5            |
+    -------------------
+    """
+
+    def __init__(self, titulo: str, valor="-", color=COLOR_AZUL):
         super().__init__()
 
-        self.title("Sistema de Despacho Inteligente")
-        self.geometry("1450x900")
-        self.minsize(1200, 720)
+        self.setObjectName("tarjetaMetrica")
 
-        self.configure(fg_color=C_BG)
+        layout = QVBoxLayout(self)
 
-        self._pedidos_metricas = []
-        self._resumen = {}
-        self._resultado_qlearn = None
-        self._datos_json = {}
+        self.lbl_titulo = QLabel(titulo)
+        self.lbl_titulo.setStyleSheet(
+            f"color: {COLOR_GRIS}; font-size: 12px;"
+        )
 
-        self._build_ui()
-        self._cargar_datos()
+        self.lbl_valor = QLabel(str(valor))
+        self.lbl_valor.setStyleSheet(
+            f"color: {color}; font-size: 22px; font-weight: bold;"
+        )
 
-    # =========================================================
+        layout.addWidget(self.lbl_titulo)
+        layout.addWidget(self.lbl_valor)
+
+    def set_valor(self, valor):
+        """
+        Actualiza el valor de la tarjeta.
+        """
+        self.lbl_valor.setText(str(valor))
+
+
+# =========================================================
+# VENTANA DE PEDIDOS
+# =========================================================
+
+class VentanaPedidos(QDialog):
+    """
+    Ventana que muestra el dataset de pedidos.
+
+    Esta ventana sirve para explicar el entorno:
+    - qué pedidos existen;
+    - qué distancia tienen;
+    - qué prioridad poseen;
+    - si tienen tráfico;
+    - si hay rutas bloqueadas.
+    """
+
+    def __init__(self, datos_json, parent=None):
+        super().__init__(parent)
+
+        self.setWindowTitle("Pedidos simulados")
+        self.resize(1150, 650)
+
+        self.datos_json = datos_json
+
+        layout = QVBoxLayout(self)
+
+        titulo = QLabel("Pedidos simulados del entorno")
+        titulo.setObjectName("tituloVentana")
+
+        descripcion = QLabel(
+            "Esta tabla representa el entorno inicial del agente. "
+            "Cada pedido contiene distancia, tiempo estimado, prioridad, tráfico y estado de ruta."
+        )
+        descripcion.setWordWrap(True)
+
+        self.tabla = QTableWidget()
+        self.tabla.setColumnCount(9)
+        self.tabla.setHorizontalHeaderLabels([
+            "ID",
+            "Cliente",
+            "Dirección",
+            "Distancia km",
+            "Tiempo min",
+            "Prioridad",
+            "Tráfico",
+            "Bloqueada",
+            "Estado"
+        ])
+
+        layout.addWidget(titulo)
+        layout.addWidget(descripcion)
+        layout.addWidget(self.tabla)
+
+        self._cargar_pedidos()
+
+    def _cargar_pedidos(self):
+        """
+        Carga pedidos del JSON en la tabla.
+        """
+        pedidos = self.datos_json.get("pedidos", [])
+
+        self.tabla.setRowCount(len(pedidos))
+
+        for fila, pedido in enumerate(pedidos):
+            valores = [
+                pedido.get("id"),
+                pedido.get("cliente_nombre"),
+                pedido.get("direccion"),
+                pedido.get("distancia_km"),
+                pedido.get("tiempo_estimado_min"),
+                pedido.get("prioridad"),
+                pedido.get("trafico"),
+                "Sí" if pedido.get("ruta_bloqueada") else "No",
+                pedido.get("estado"),
+            ]
+
+            for columna, valor in enumerate(valores):
+                item = QTableWidgetItem(str(valor))
+                item.setTextAlignment(Qt.AlignCenter)
+                self.tabla.setItem(fila, columna, item)
+
+        self.tabla.resizeColumnsToContents()
+
+
+# =========================================================
+# VENTANA DE APRENDIZAJE
+# =========================================================
+
+class VentanaAprendizaje(QDialog):
+    """
+    Ventana que muestra cómo aprende el agente paso a paso.
+
+    Aquí se ve:
+    - estado actual;
+    - acciones disponibles;
+    - acción elegida;
+    - exploración o explotación;
+    - recompensa;
+    - Q anterior;
+    - Q actualizado;
+    - explicación del cambio.
+    """
+
+    def __init__(self, resultado, parent=None):
+        super().__init__(parent)
+
+        self.setWindowTitle("Aprendizaje detallado Q-Learning")
+        self.resize(1200, 780)
+
+        self.resultado = resultado or {}
+
+        layout = QVBoxLayout(self)
+
+        titulo = QLabel("Proceso de aprendizaje Q-Learning")
+        titulo.setObjectName("tituloVentana")
+
+        explicacion = QLabel(
+            "Esta consola muestra el proceso interno del agente. "
+            "Cada bloque representa una decisión tomada durante el entrenamiento: "
+            "estado, acción, recompensa y actualización de la Tabla Q."
+        )
+        explicacion.setWordWrap(True)
+
+        nota = QLabel(
+            "Importante: en este sistema, un valor Q más alto significa que el agente "
+            "espera una mayor recompensa para esa acción. En cambio, el Costo de Ruta debe ser bajo."
+        )
+        nota.setWordWrap(True)
+        nota.setObjectName("notaImportante")
+
+        self.txt_logs = QPlainTextEdit()
+        self.txt_logs.setReadOnly(True)
+
+        layout.addWidget(titulo)
+        layout.addWidget(explicacion)
+        layout.addWidget(nota)
+        layout.addWidget(self.txt_logs)
+
+        self._cargar_logs()
+
+    def _cargar_logs(self):
+        """
+        Muestra los logs de aprendizaje generados por main.py.
+        """
+        logs = self.resultado.get("logs_aprendizaje", [])
+
+        if not logs:
+            self.txt_logs.setPlainText(
+                "Todavía no hay logs de aprendizaje.\n\n"
+                "Primero ejecuta 'Entrenar agente' desde la ventana principal."
+            )
+            return
+
+        texto = "\n\n".join(logs)
+        self.txt_logs.setPlainText(texto)
+
+
+# =========================================================
+# VENTANA DE TABLA Q
+# =========================================================
+
+class VentanaTablaQ(QDialog):
+    """
+    Ventana que muestra un resumen de la Tabla Q.
+
+    La Tabla Q representa la memoria del agente.
+    Cada fila indica:
+    - estado;
+    - acción;
+    - valor Q;
+    - interpretación.
+    """
+
+    def __init__(self, resultado, parent=None):
+        super().__init__(parent)
+
+        self.setWindowTitle("Resumen de Tabla Q")
+        self.resize(1150, 700)
+
+        self.resultado = resultado or {}
+
+        layout = QVBoxLayout(self)
+
+        titulo = QLabel("Tabla Q aprendida por el agente")
+        titulo.setObjectName("tituloVentana")
+
+        explicacion = QLabel(
+            "La Tabla Q almacena lo que el agente aprendió. "
+            "Un valor Q alto indica que esa acción resultó conveniente en ese estado. "
+            "Un valor Q bajo indica que la acción no fue tan favorable. "
+            "El agente busca valores Q altos porque representan mayor recompensa esperada."
+        )
+        explicacion.setWordWrap(True)
+
+        self.tabla = QTableWidget()
+        self.tabla.setColumnCount(4)
+        self.tabla.setHorizontalHeaderLabels([
+            "Estado",
+            "Acción",
+            "Valor Q",
+            "Interpretación"
+        ])
+
+        layout.addWidget(titulo)
+        layout.addWidget(explicacion)
+        layout.addWidget(self.tabla)
+
+        self._cargar_tabla_q()
+
+    def _interpretar_valor_q(self, valor_q):
+        """
+        Genera una explicación simple del valor Q.
+        """
+        try:
+            valor = float(valor_q)
+        except Exception:
+            return "Sin interpretación"
+
+        if valor > 20:
+            return "Acción muy conveniente aprendida"
+        if valor > 0:
+            return "Acción favorable"
+        if valor == 0:
+            return "Acción aún no aprendida"
+        return "Acción poco conveniente o penalizada"
+
+    def _cargar_tabla_q(self):
+        """
+        Carga el resumen de Tabla Q en la tabla visual.
+        """
+        resumen = self.resultado.get("tabla_q_resumen", [])
+
+        self.tabla.setRowCount(len(resumen))
+
+        for fila, item in enumerate(resumen):
+            estado = item.get("estado", "")
+            accion = item.get("accion", "")
+            valor_q = item.get("valor_q", 0)
+            interpretacion = self._interpretar_valor_q(valor_q)
+
+            valores = [
+                estado,
+                accion,
+                valor_q,
+                interpretacion
+            ]
+
+            for columna, valor in enumerate(valores):
+                celda = QTableWidgetItem(str(valor))
+                self.tabla.setItem(fila, columna, celda)
+
+        self.tabla.resizeColumnsToContents()
+
+
+# =========================================================
+# VENTANA DE MAPA OFFLINE ANIMADO
+# =========================================================
+
+class VentanaMapa(QDialog):
+    """
+    Ventana de mapa offline animado.
+
+    Esta ventana NO usa internet.
+    No utiliza Folium ni OpenStreetMap.
+
+    Lo que hace:
+    - Dibuja un mapa simulado tipo tablero de calles.
+    - Muestra el almacén.
+    - Muestra todos los pedidos.
+    - Dibuja la ruta que eligió el agente.
+    - Anima el movimiento del agente como si fuera un video.
+
+    Importante:
+    El agente aprende el ORDEN de entrega.
+    Esta ventana visualiza ese orden en un mapa lógico/simulado.
+    """
+
+    def __init__(self, datos_json, resultado, parent=None):
+        super().__init__(parent)
+
+        self.setWindowTitle("Mapa animado de la ruta del agente")
+        self.resize(1200, 780)
+
+        self.datos_json = datos_json
+        self.resultado = resultado or {}
+
+        self.ruta = self._obtener_mejor_ruta()
+
+        self.scene = QGraphicsScene()
+
+        self.view = QGraphicsView(self.scene)
+        self.view.setRenderHint(QPainter.Antialiasing)
+
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self._avanzar_animacion)
+
+        self.puntos_canvas = {}
+        self.puntos_animacion = []
+        self.indice_animacion = 0
+        self.agente_item = None
+        self.agente_label = None
+
+        self._construir_ui()
+        self._preparar_mapa()
+        self._dibujar_mapa()
+        self._preparar_animacion()
+
+    # =====================================================
     # UI
-    # =========================================================
+    # =====================================================
 
-    def _build_ui(self):
+    def _construir_ui(self):
+        """
+        Construye la ventana del mapa animado.
+        """
+        layout = QVBoxLayout(self)
 
-        # HEADER
-        header = ctk.CTkFrame(
-            self,
-            fg_color=C_HEADER,
-            height=85,
-            corner_radius=0
+        titulo = QLabel("Mapa offline animado de la ruta elegida")
+        titulo.setObjectName("tituloVentana")
+
+        descripcion = QLabel(
+            "Este mapa no usa internet. Representa un entorno simulado de calles. "
+            "El agente se mueve desde el almacén hacia los pedidos en el orden que eligió Q-Learning."
+        )
+        descripcion.setWordWrap(True)
+
+        self.lbl_estado = QLabel("Presiona 'Iniciar animación' para ver el recorrido.")
+        self.lbl_estado.setStyleSheet("font-weight: bold; color: #1d4ed8;")
+
+        botones = QHBoxLayout()
+
+        self.btn_iniciar = QPushButton("▶ Iniciar animación")
+        self.btn_pausar = QPushButton("⏸ Pausar")
+        self.btn_reiniciar = QPushButton("↺ Reiniciar")
+        self.btn_paso = QPushButton("Avanzar paso")
+
+        self.btn_iniciar.clicked.connect(self.iniciar_animacion)
+        self.btn_pausar.clicked.connect(self.pausar_animacion)
+        self.btn_reiniciar.clicked.connect(self.reiniciar_animacion)
+        self.btn_paso.clicked.connect(self.avanzar_un_paso)
+
+        botones.addWidget(self.btn_iniciar)
+        botones.addWidget(self.btn_pausar)
+        botones.addWidget(self.btn_reiniciar)
+        botones.addWidget(self.btn_paso)
+
+        layout.addWidget(titulo)
+        layout.addWidget(descripcion)
+        layout.addWidget(self.lbl_estado)
+        layout.addLayout(botones)
+        layout.addWidget(self.view)
+
+    # =====================================================
+    # DATOS DE RUTA
+    # =====================================================
+
+    def _obtener_mejor_ruta(self):
+        """
+        Obtiene la mejor ruta encontrada por el agente.
+
+        En main.py, 'mejor_ruta' representa el episodio con menor costo total.
+        """
+        mejor = self.resultado.get("mejor_ruta")
+
+        if mejor:
+            return mejor.get("ruta", [])
+
+        return []
+
+    # =====================================================
+    # PREPARACIÓN DE COORDENADAS
+    # =====================================================
+
+    def _preparar_mapa(self):
+        """
+        Convierte coordenadas geográficas del JSON a coordenadas de pantalla.
+
+        Como no usamos mapa real, tomamos latitud/longitud y las escalamos
+        dentro del área gráfica.
+        """
+        almacen = self.datos_json.get("almacen", {})
+        pedidos = self.datos_json.get("pedidos", [])
+
+        coordenadas = []
+
+        coord_almacen = almacen.get("coordenadas", {})
+        if "lat" in coord_almacen and "lng" in coord_almacen:
+            coordenadas.append(coord_almacen)
+
+        for pedido in pedidos:
+            coord = pedido.get("coordenadas", {})
+            if "lat" in coord and "lng" in coord:
+                coordenadas.append(coord)
+
+        if not coordenadas:
+            return
+
+        latitudes = [c["lat"] for c in coordenadas]
+        longitudes = [c["lng"] for c in coordenadas]
+
+        self.min_lat = min(latitudes)
+        self.max_lat = max(latitudes)
+        self.min_lng = min(longitudes)
+        self.max_lng = max(longitudes)
+
+        self.ancho_mapa = 1000
+        self.alto_mapa = 540
+        self.margen = 60
+
+        self.scene.setSceneRect(0, 0, self.ancho_mapa, self.alto_mapa)
+
+        self.puntos_canvas["almacen"] = self._coord_a_canvas(
+            coord_almacen["lat"],
+            coord_almacen["lng"]
         )
 
-        header.pack(fill="x")
+        for pedido in pedidos:
+            coord = pedido.get("coordenadas", {})
+            if "lat" not in coord or "lng" not in coord:
+                continue
 
-        ctk.CTkLabel(
-            header,
-            text="🚚 Sistema de Despacho Inteligente",
-            font=ctk.CTkFont(size=30, weight="bold"),
-            text_color="white"
-        ).pack(anchor="w", padx=25, pady=(14, 0))
+            pedido_id = pedido.get("id")
 
-        ctk.CTkLabel(
-            header,
-            text="Agente Q-Learning para optimización de entregas",
-            font=ctk.CTkFont(size=13),
-            text_color="#b8c1ec"
-        ).pack(anchor="w", padx=28)
+            self.puntos_canvas[pedido_id] = self._coord_a_canvas(
+                coord["lat"],
+                coord["lng"]
+            )
 
-        # BODY
-        body = ctk.CTkFrame(self, fg_color=C_BG)
-        body.pack(fill="both", expand=True, padx=15, pady=15)
+    def _coord_a_canvas(self, lat, lng):
+        """
+        Convierte lat/lng a coordenadas X/Y de la escena.
 
-        body.columnconfigure(0, weight=3)
-        body.columnconfigure(1, weight=2)
+        X se calcula con longitud.
+        Y se calcula con latitud invertida porque en pantalla Y crece hacia abajo.
+        """
+        rango_lng = self.max_lng - self.min_lng
+        rango_lat = self.max_lat - self.min_lat
 
-        body.rowconfigure(0, weight=1)
+        if rango_lng == 0:
+            rango_lng = 1
 
-        self._build_left(body)
-        self._build_right(body)
+        if rango_lat == 0:
+            rango_lat = 1
 
-    # =========================================================
-    # PANEL IZQUIERDO
-    # =========================================================
-
-    def _build_left(self, parent):
-
-        frame = ctk.CTkFrame(
-            parent,
-            fg_color=C_CARD,
-            corner_radius=16
+        x = self.margen + ((lng - self.min_lng) / rango_lng) * (
+            self.ancho_mapa - 2 * self.margen
         )
 
-        frame.grid(
-            row=0,
-            column=0,
-            sticky="nsew",
-            padx=(0, 10)
-        )
-
-        frame.rowconfigure(2, weight=1)
-        frame.columnconfigure(0, weight=1)
-
-        # ALMACEN
-        self.lbl_almacen = ctk.CTkLabel(
-            frame,
-            text="",
-            font=ctk.CTkFont(size=12),
-            text_color=C_GREEN
-        )
-
-        self.lbl_almacen.grid(
-            row=0,
-            column=0,
-            sticky="w",
-            padx=20,
-            pady=(15, 5)
-        )
-
-        # TITULO
-        ctk.CTkLabel(
-            frame,
-            text="📋 Pedidos registrados",
-            font=ctk.CTkFont(size=18, weight="bold"),
-            text_color=C_HEADER
-        ).grid(
-            row=1,
-            column=0,
-            sticky="w",
-            padx=20,
-            pady=(5, 10)
-        )
-
-        # TABLA
-        self.tabla = ctk.CTkTextbox(
-            frame,
-            font=ctk.CTkFont(
-                family="Courier New",
-                size=11
-            ),
-            fg_color="#f8fafc",
-            text_color=C_TEXT,
-            border_width=1,
-            border_color="#dbe2ea",
-            corner_radius=12
-        )
-
-        self.tabla.grid(
-            row=2,
-            column=0,
-            sticky="nsew",
-            padx=15,
-            pady=10
-        )
-
-        # BOTON
-        self.btn_simular = ctk.CTkButton(
-            frame,
-            text="▶ Ejecutar simulación",
-            height=48,
-            corner_radius=12,
-            fg_color=C_BLUE,
-            hover_color="#1d4ed8",
-            font=ctk.CTkFont(
-                size=14,
-                weight="bold"
-            ),
-            command=self._ejecutar_simulacion
-        )
-
-        self.btn_simular.grid(
-            row=3,
-            column=0,
-            sticky="ew",
-            padx=15,
-            pady=15
-        )
-
-    # =========================================================
-    # PANEL DERECHO
-    # =========================================================
-
-    def _build_right(self, parent):
-
-        frame = ctk.CTkFrame(
-            parent,
-            fg_color=C_CARD,
-            corner_radius=16
-        )
-
-        frame.grid(
-            row=0,
-            column=1,
-            sticky="nsew"
-        )
-
-        frame.columnconfigure(0, weight=1)
-
-        # TITULO
-        ctk.CTkLabel(
-            frame,
-            text="🤖 Resultado del agente",
-            font=ctk.CTkFont(size=18, weight="bold"),
-            text_color=C_HEADER
-        ).pack(anchor="w", padx=20, pady=(20, 10))
-
-        # COMBO
-        self.combo = ctk.CTkComboBox(
-            frame,
-            values=["Ejecuta la simulación"],
-            state="disabled",
-            command=self._mostrar_detalle
-        )
-
-        self.combo.pack(fill="x", padx=20)
-
-        # DETALLE
-        self.detalle = ctk.CTkTextbox(
-            frame,
-            height=260,
-            font=ctk.CTkFont(
-                family="Courier New",
-                size=12
-            ),
-            fg_color="#eef4ff",
-            text_color="#1e3a8a",
-            corner_radius=12
-        )
-
-        self.detalle.pack(
-            fill="x",
-            padx=20,
-            pady=15
-        )
-
-        # METRICAS
-        ctk.CTkLabel(
-            frame,
-            text="📈 Métricas básicas",
-            font=ctk.CTkFont(size=16, weight="bold"),
-            text_color=C_HEADER
-        ).pack(anchor="w", padx=20)
-
-        self.metricas_frame = ctk.CTkScrollableFrame(
-            frame,
-            fg_color=C_BG,
-            corner_radius=12
-        )
-
-        self.metricas_frame.pack(
-            fill="both",
-            expand=True,
-            padx=15,
-            pady=15
-        )
-
-    # =========================================================
-    # CARGAR DATOS
-    # =========================================================
-
-    def _cargar_datos(self):
-
-        self._datos_json = cargar_datos()
-
-        alm = self._datos_json["almacen"]
-
-        self.lbl_almacen.configure(
-            text=(
-                f"📦 Almacén: {alm['direccion']}   "
-                f"| Lat: {alm['coordenadas']['lat']}   "
-                f"| Lng: {alm['coordenadas']['lng']}"
+        y = self.alto_mapa - (
+            self.margen + ((lat - self.min_lat) / rango_lat) * (
+                self.alto_mapa - 2 * self.margen
             )
         )
 
-        self._refrescar_tabla(
-            self._datos_json["pedidos"]
-        )
+        return QPointF(x, y)
 
-    # =========================================================
-    # TABLA
-    # =========================================================
+    # =====================================================
+    # DIBUJO DEL MAPA
+    # =====================================================
 
-    def _refrescar_tabla(self, pedidos):
+    def _dibujar_mapa(self):
+        """
+        Dibuja el mapa completo:
+        - fondo;
+        - calles simuladas;
+        - almacén;
+        - pedidos;
+        - ruta elegida;
+        - agente.
+        """
+        self.scene.clear()
 
-        lineas = []
+        self._dibujar_fondo()
+        self._dibujar_calles()
+        self._dibujar_pedidos()
+        self._dibujar_ruta()
+        self._dibujar_agente()
 
-        sep = "─" * 120
+    def _dibujar_fondo(self):
+        """
+        Dibuja el fondo del mapa.
+        """
+        self.scene.setBackgroundBrush(QBrush(QColor("#f8fafc")))
 
-        lineas.append(sep)
+    def _dibujar_calles(self):
+        """
+        Dibuja una grilla de calles simuladas.
 
-        lineas.append(
-            f"{'ID':<4}"
-            f"{'Cliente':<22}"
-            f"{'Prioridad':<12}"
-            f"{'Tráfico':<12}"
-            f"{'Distancia':<12}"
-            f"{'Tiempo':<12}"
-            f"{'Estado':<15}"
-        )
+        Esto evita que la ruta se vea como una línea cruzando casas.
+        No es una ruta real, pero visualmente representa avenidas/calles.
+        """
+        pen_calle = QPen(QColor("#d1d5db"))
+        pen_calle.setWidth(1)
 
-        lineas.append(sep)
+        separacion = 70
 
-        for p in pedidos:
+        x = self.margen
+        while x <= self.ancho_mapa - self.margen:
+            self.scene.addLine(
+                x,
+                self.margen,
+                x,
+                self.alto_mapa - self.margen,
+                pen_calle
+            )
+            x += separacion
 
-            lineas.append(
-                f"{str(p['id']):<4}"
-                f"{p['cliente_nombre'][:20]:<22}"
-                f"{p['prioridad']:<12}"
-                f"{p['trafico']:<12}"
-                f"{str(p['distancia_km']) + ' km':<12}"
-                f"{str(p['tiempo_estimado_min']) + ' min':<12}"
-                f"{p['estado']:<15}"
+        y = self.margen
+        while y <= self.alto_mapa - self.margen:
+            self.scene.addLine(
+                self.margen,
+                y,
+                self.ancho_mapa - self.margen,
+                y,
+                pen_calle
+            )
+            y += separacion
+
+    def _dibujar_pedidos(self):
+        """
+        Dibuja almacén y pedidos.
+        """
+        fuente = QFont("Segoe UI", 9)
+        fuente.setBold(True)
+
+        almacen_punto = self.puntos_canvas.get("almacen")
+        if almacen_punto:
+            self.scene.addRect(
+                almacen_punto.x() - 12,
+                almacen_punto.y() - 12,
+                24,
+                24,
+                QPen(QColor("#1d4ed8")),
+                QBrush(QColor("#2563eb"))
             )
 
-        lineas.append(sep)
+            texto = self.scene.addText("Almacén", fuente)
+            texto.setDefaultTextColor(QColor("#1d4ed8"))
+            texto.setPos(almacen_punto.x() + 14, almacen_punto.y() - 14)
 
-        self.tabla.delete("1.0", "end")
-        self.tabla.insert("end", "\n".join(lineas))
+        pedidos = self.datos_json.get("pedidos", [])
 
-    # =========================================================
-    # SIMULACION
-    # =========================================================
+        for pedido in pedidos:
+            pedido_id = pedido.get("id")
+            punto = self.puntos_canvas.get(pedido_id)
 
-    def _ejecutar_simulacion(self):
+            if not punto:
+                continue
 
-        self.btn_simular.configure(
-            state="disabled",
-            text="⏳ Simulando..."
+            color = QColor("#16a34a")
+
+            if pedido.get("ruta_bloqueada"):
+                color = QColor("#dc2626")
+            elif pedido.get("trafico") == "alto":
+                color = QColor("#ea580c")
+            elif pedido.get("prioridad") == "alta":
+                color = QColor("#7c3aed")
+
+            self.scene.addEllipse(
+                punto.x() - 9,
+                punto.y() - 9,
+                18,
+                18,
+                QPen(QColor("#111827")),
+                QBrush(color)
+            )
+
+            etiqueta = self.scene.addText(f"P{pedido_id}", fuente)
+            etiqueta.setDefaultTextColor(QColor("#111827"))
+            etiqueta.setPos(punto.x() + 10, punto.y() - 14)
+
+    def _dibujar_ruta(self):
+        """
+        Dibuja la ruta elegida por el agente.
+
+        En lugar de unir puntos con diagonales directas, usa caminos tipo L:
+        primero horizontal y luego vertical, simulando calles.
+        """
+        if not self.ruta:
+            return
+
+        puntos_ruta = self._obtener_puntos_de_ruta()
+
+        if len(puntos_ruta) < 2:
+            return
+
+        pen_ruta = QPen(QColor("#2563eb"))
+        pen_ruta.setWidth(4)
+
+        pen_ruta_fondo = QPen(QColor("#bfdbfe"))
+        pen_ruta_fondo.setWidth(10)
+
+        font_orden = QFont("Segoe UI", 10)
+        font_orden.setBold(True)
+
+        for i in range(len(puntos_ruta) - 1):
+            origen = puntos_ruta[i]
+            destino = puntos_ruta[i + 1]
+
+            esquina = QPointF(destino.x(), origen.y())
+
+            self.scene.addLine(
+                origen.x(),
+                origen.y(),
+                esquina.x(),
+                esquina.y(),
+                pen_ruta_fondo
+            )
+            self.scene.addLine(
+                esquina.x(),
+                esquina.y(),
+                destino.x(),
+                destino.y(),
+                pen_ruta_fondo
+            )
+
+            self.scene.addLine(
+                origen.x(),
+                origen.y(),
+                esquina.x(),
+                esquina.y(),
+                pen_ruta
+            )
+            self.scene.addLine(
+                esquina.x(),
+                esquina.y(),
+                destino.x(),
+                destino.y(),
+                pen_ruta
+            )
+
+            if i > 0:
+                orden = self.scene.addText(str(i), font_orden)
+                orden.setDefaultTextColor(QColor("#1d4ed8"))
+                orden.setPos(origen.x() - 6, origen.y() - 28)
+
+    def _dibujar_agente(self):
+        """
+        Dibuja el agente como un círculo sobre el almacén.
+        """
+        origen = self.puntos_canvas.get("almacen")
+
+        if not origen:
+            return
+
+        self.agente_item = self.scene.addEllipse(
+            QRectF(-10, -10, 20, 20),
+            QPen(QColor("#111827")),
+            QBrush(QColor("#facc15"))
         )
 
-        threading.Thread(
-            target=self._simular,
-            daemon=True
-        ).start()
+        self.agente_item.setPos(origen)
 
-    def _simular(self):
+        fuente = QFont("Segoe UI", 8)
+        fuente.setBold(True)
 
-        # METRICAS
-        self._pedidos_metricas = simular_pedidos()
+        self.agente_label = self.scene.addText("Agente", fuente)
+        self.agente_label.setDefaultTextColor(QColor("#111827"))
+        self.agente_label.setPos(origen.x() + 12, origen.y() - 25)
 
-        self._resumen = resumen_simulacion(
-            self._pedidos_metricas
-        )
+    # =====================================================
+    # ANIMACIÓN
+    # =====================================================
 
-        # Q LEARNING
-        self._resultado_qlearn = ejecutar_simulacion_beta(
-            episodios=3
-        )
+    def _obtener_puntos_de_ruta(self):
+        """
+        Devuelve los puntos de la ruta en orden:
+        almacén → pedido 1 → pedido 2 → ...
+        """
+        puntos = []
 
-        self.after(0, self._post_simulacion)
+        almacen = self.puntos_canvas.get("almacen")
 
-    # =========================================================
-    # POST SIMULACION
-    # =========================================================
+        if almacen:
+            puntos.append(almacen)
 
-    def _post_simulacion(self):
+        for paso in self.ruta:
+            pedido_id = paso.get("pedido")
+            punto = self.puntos_canvas.get(pedido_id)
 
-        # ACTUALIZAR ESTADOS
-        pedidos_actualizados = []
+            if punto:
+                puntos.append(punto)
 
-        for p in self._pedidos_metricas:
+        return puntos
 
-            pedidos_actualizados.append({
-                "id": p["ID"],
-                "cliente_nombre": p["Cliente"],
-                "direccion": p["Dirección"],
-                "prioridad": p["Prioridad"],
-                "trafico": p["Tráfico"].lower(),
-                "ruta_bloqueada": p["Bloqueada"] == "⚠️ Sí",
-                "distancia_km": p["Distancia (km)"],
-                "tiempo_estimado_min": p["Tiempo (min)"],
-                "estado": "entregado"
+    def _preparar_animacion(self):
+        """
+        Crea una lista de puntos intermedios para animar al agente.
+
+        La ruta se mueve por tramos tipo L:
+        origen → esquina → destino.
+        """
+        puntos_ruta = self._obtener_puntos_de_ruta()
+
+        self.puntos_animacion = []
+
+        if len(puntos_ruta) < 2:
+            return
+
+        for i in range(len(puntos_ruta) - 1):
+            origen = puntos_ruta[i]
+            destino = puntos_ruta[i + 1]
+            esquina = QPointF(destino.x(), origen.y())
+
+            self._agregar_tramo_animacion(origen, esquina, i)
+            self._agregar_tramo_animacion(esquina, destino, i)
+
+    def _agregar_tramo_animacion(self, origen, destino, indice_tramo):
+        """
+        Agrega puntos intermedios entre origen y destino.
+        """
+        pasos = 35
+
+        for i in range(pasos):
+            t = i / pasos
+
+            x = origen.x() + (destino.x() - origen.x()) * t
+            y = origen.y() + (destino.y() - origen.y()) * t
+
+            self.puntos_animacion.append({
+                "punto": QPointF(x, y),
+                "tramo": indice_tramo
             })
 
-        self._refrescar_tabla(
-            pedidos_actualizados
-        )
+    def iniciar_animacion(self):
+        """
+        Inicia la animación del agente.
+        """
+        if not self.puntos_animacion:
+            self.lbl_estado.setText("No existe ruta para animar. Primero ejecuta el agente.")
+            return
 
-        # COMBO
-        opciones = [
-            f"P{p['ID']:02d} — {p['Cliente']}"
-            for p in self._pedidos_metricas
-        ]
+        self.timer.start(30)
 
-        self.combo.configure(
-            values=opciones,
-            state="normal"
-        )
+    def pausar_animacion(self):
+        """
+        Pausa la animación.
+        """
+        self.timer.stop()
 
-        self.combo.set(opciones[0])
+    def reiniciar_animacion(self):
+        """
+        Reinicia la animación al almacén.
+        """
+        self.timer.stop()
+        self.indice_animacion = 0
 
-        self._mostrar_detalle(opciones[0])
+        origen = self.puntos_canvas.get("almacen")
 
-        self._mostrar_metricas()
+        if origen and self.agente_item:
+            self.agente_item.setPos(origen)
+            self.agente_label.setPos(origen.x() + 12, origen.y() - 25)
 
-        self.btn_simular.configure(
-            state="normal",
-            text="▶ Ejecutar simulación"
-        )
+        self.lbl_estado.setText("Animación reiniciada. El agente está en el almacén.")
 
-    # =========================================================
-    # DETALLE
-    # =========================================================
+    def avanzar_un_paso(self):
+        """
+        Avanza un solo punto de la animación.
+        """
+        self._avanzar_animacion()
 
-    def _mostrar_detalle(self, seleccion):
+    def _avanzar_animacion(self):
+        """
+        Mueve el agente al siguiente punto de la animación.
+        """
+        if self.indice_animacion >= len(self.puntos_animacion):
+            self.timer.stop()
+            self.lbl_estado.setText("Ruta completada. El agente terminó las entregas.")
+            return
 
-        pid = int(seleccion[1:3])
+        dato = self.puntos_animacion[self.indice_animacion]
+        punto = dato["punto"]
+        tramo = dato["tramo"]
 
-        pedido = next(
-            p for p in self._pedidos_metricas
-            if p["ID"] == pid
-        )
+        if self.agente_item:
+            self.agente_item.setPos(punto)
 
-        m = pedido["_metricas"]
+        if self.agente_label:
+            self.agente_label.setPos(punto.x() + 12, punto.y() - 25)
 
-        pedido_real = next(
-            (x for x in self._datos_json["pedidos"] if x["id"] == m.id),
-            {}
-        )
-
-        recompensa = calcular_recompensa(
-            pedido_real,
-            True
-        )
-
-        costo = calcular_costo_ruta(
-            pedido_real
-        )
-
-        texto = f"""
-ID:                 {m.id}
-
-Cliente:            {m.cliente}
-
-Dirección:          {pedido['Dirección']}
-
-Prioridad:          {pedido['Prioridad']}
-
-Tráfico:            {m.trafico}
-
-Ruta bloqueada:     {'Sí' if m.ruta_bloqueada else 'No'}
-
-Distancia:          {m.distancia_km} km
-
-Tiempo estimado:    {m.tiempo_minutos} min
-
-Penalización:       Bs. {m.penalizacion}
-
-Costo Ruta:         Bs. {m.costo_ruta}
-
-Recompensa:         {round(recompensa, 2)}
-
-Costo Agente:       {round(costo, 2)}
-
-Estado:             ENTREGADO
-"""
-
-        self.detalle.delete("1.0", "end")
-        self.detalle.insert("end", texto)
-
-    # =========================================================
-    # TARJETA
-    # =========================================================
-
-    def _crear_tarjeta(self, fila, columna, titulo, valor, color):
-
-        card = ctk.CTkFrame(
-            self.metricas_frame,
-            fg_color=C_CARD,
-            corner_radius=12,
-            border_width=2,
-            border_color=color
-        )
-
-        card.grid(
-            row=fila,
-            column=columna,
-            padx=8,
-            pady=8,
-            sticky="ew"
-        )
-
-        ctk.CTkLabel(
-            card,
-            text=titulo,
-            font=ctk.CTkFont(size=12),
-            text_color=C_SUBTEXT
-        ).pack(anchor="w", padx=12, pady=(10, 0))
-
-        ctk.CTkLabel(
-            card,
-            text=str(valor),
-            font=ctk.CTkFont(
-                size=20,
-                weight="bold"
-            ),
-            text_color=color
-        ).pack(anchor="w", padx=12, pady=(0, 10))
-
-    # =========================================================
-    # METRICAS
-    # =========================================================
-
-    def _mostrar_metricas(self):
-
-        for w in self.metricas_frame.winfo_children():
-            w.destroy()
-
-        r = self._resumen
-
-        self.metricas_frame.columnconfigure(0, weight=1)
-        self.metricas_frame.columnconfigure(1, weight=1)
-
-        tarjetas = [
-
-            ("Total pedidos", r["total_pedidos"], C_BLUE),
-
-            ("Costo total", f"Bs. {r['costo_total']}", C_GREEN),
-
-            ("Distancia total", f"{r['distancia_total']} km", C_ORANGE),
-
-            ("Cumplimiento", f"{r['tasa_cumplimiento']} %", C_BLUE),
-
-            ("Costo promedio", f"Bs. {r['costo_promedio']}", C_GREEN),
-
-            ("Tiempo promedio", f"{r['tiempo_promedio']} min", C_ORANGE),
-
-            ("En tiempo", r["pedidos_en_tiempo"], C_GREEN),
-
-            ("Con demora", r["pedidos_con_demora"], C_RED),
-
-            ("Rutas bloqueadas", r["rutas_bloqueadas"], C_YELLOW)
-
-        ]
-
-        for i, (titulo, valor, color) in enumerate(tarjetas):
-
-            self._crear_tarjeta(
-                i // 2,
-                i % 2,
-                titulo,
-                valor,
-                color
+        if tramo < len(self.ruta):
+            paso = self.ruta[tramo]
+            self.lbl_estado.setText(
+                f"El agente se dirige al Pedido P{paso.get('pedido')} - "
+                f"{paso.get('destino')} | Decisión: {paso.get('tipo_decision')} | "
+                f"Costo: {paso.get('costo')} | Recompensa: {paso.get('recompensa')}"
             )
 
-        # =====================================================
-        # Q LEARNING
-        # =====================================================
+        self.indice_animacion += 1
 
-        if self._resultado_qlearn:
 
-            q = self._resultado_qlearn
+# =========================================================
+# VENTANA PRINCIPAL
+# =========================================================
 
-            total_recompensa = sum(
-                ep["recompensa_total"]
-                for ep in q["resultados"]
+class VentanaPrincipal(QMainWindow):
+    """
+    Ventana principal del sistema.
+
+    Desde aquí se controla:
+    - entrenamiento;
+    - ejecución;
+    - reset de Tabla Q;
+    - apertura de ventanas secundarias.
+    """
+
+    def __init__(self):
+        super().__init__()
+
+        self.setWindowTitle("Delivery Inteligente con Q-Learning")
+        self.resize(980, 720)
+
+        self.datos_json = cargar_datos_originales()
+        self.resultado_actual = None
+
+        self._construir_ui()
+        self._aplicar_estilos()
+
+    # =====================================================
+    # CONSTRUCCIÓN DE UI
+    # =====================================================
+
+    def _construir_ui(self):
+        """
+        Construye la ventana principal.
+        """
+        contenedor = QWidget()
+        layout = QVBoxLayout(contenedor)
+
+        header = self._crear_header()
+        controles = self._crear_controles()
+        metricas = self._crear_metricas()
+        botones_ventanas = self._crear_botones_ventanas()
+        descripcion = self._crear_descripcion()
+
+        layout.addWidget(header)
+        layout.addWidget(controles)
+        layout.addWidget(metricas, stretch=1)
+        layout.addWidget(botones_ventanas)
+        layout.addWidget(descripcion)
+
+        self.setCentralWidget(contenedor)
+
+    def _crear_header(self):
+        """
+        Crea el encabezado superior.
+        """
+        frame = QFrame()
+        frame.setObjectName("header")
+
+        layout = QVBoxLayout(frame)
+
+        titulo = QLabel("🚚 Delivery Inteligente con Q-Learning")
+        titulo.setObjectName("tituloHeader")
+
+        subtitulo = QLabel(
+            "Tercer avance: aprendizaje persistente, explicación del agente, mapa animado y Tabla Q"
+        )
+        subtitulo.setObjectName("subtituloHeader")
+
+        layout.addWidget(titulo)
+        layout.addWidget(subtitulo)
+
+        return frame
+
+    def _crear_controles(self):
+        """
+        Crea los campos de configuración y botones principales.
+        """
+        grupo = QGroupBox("Control de entrenamiento")
+        layout = QGridLayout(grupo)
+
+        self.spin_episodios = QSpinBox()
+        self.spin_episodios.setMinimum(1)
+        self.spin_episodios.setMaximum(1000)
+        self.spin_episodios.setValue(1)
+        self.spin_episodios.setToolTip(
+            "Cantidad de veces que el agente repetirá la simulación para aprender."
+        )
+
+        self.spin_epsilon = QDoubleSpinBox()
+        self.spin_epsilon.setMinimum(0.0)
+        self.spin_epsilon.setMaximum(1.0)
+        self.spin_epsilon.setSingleStep(0.05)
+        self.spin_epsilon.setValue(0.30)
+        self.spin_epsilon.setToolTip(
+            "Probabilidad de exploración. Alto = prueba rutas nuevas. Bajo = usa lo aprendido."
+        )
+
+        self.btn_entrenar = QPushButton("Entrenar agente")
+        self.btn_ejecutar = QPushButton("Ejecutar con aprendizaje guardado")
+        self.btn_reset = QPushButton("Resetear Tabla Q")
+
+        self.btn_entrenar.clicked.connect(self.entrenar_agente)
+        self.btn_ejecutar.clicked.connect(self.ejecutar_con_aprendizaje)
+        self.btn_reset.clicked.connect(self.resetear_tabla_q)
+
+        layout.addWidget(QLabel("Episodios:"), 0, 0)
+        layout.addWidget(self.spin_episodios, 0, 1)
+
+        layout.addWidget(QLabel("Epsilon:"), 1, 0)
+        layout.addWidget(self.spin_epsilon, 1, 1)
+
+        layout.addWidget(self.btn_entrenar, 0, 2)
+        layout.addWidget(self.btn_ejecutar, 1, 2)
+        layout.addWidget(self.btn_reset, 2, 2)
+
+        return grupo
+
+    def _crear_metricas(self):
+        """
+        Crea el área de resumen rápido.
+
+        Ahora usa QScrollArea para que las cards no se pierdan
+        cuando la ventana es pequeña o cuando se agreguen más métricas.
+        """
+        grupo = QGroupBox("Resumen del último resultado")
+        layout_principal = QVBoxLayout(grupo)
+
+        self.scroll_metricas = QScrollArea()
+        self.scroll_metricas.setWidgetResizable(True)
+        self.scroll_metricas.setMinimumHeight(210)
+
+        contenido = QWidget()
+        layout = QGridLayout(contenido)
+
+        self.card_episodios = TarjetaMetrica("Episodios", "-")
+        self.card_valores_q = TarjetaMetrica("Valores Tabla Q", "-", COLOR_NARANJA)
+        self.card_mejor_costo = TarjetaMetrica("Mejor costo", "-", COLOR_VERDE)
+        self.card_recompensa = TarjetaMetrica("Mejor recompensa", "-", COLOR_AZUL)
+        self.card_entregas = TarjetaMetrica("Entregas completadas", "-", COLOR_ROJO)
+        self.card_archivo = TarjetaMetrica("Archivo Q", "q_table.pkl", COLOR_NARANJA)
+
+        layout.addWidget(self.card_episodios, 0, 0)
+        layout.addWidget(self.card_valores_q, 0, 1)
+        layout.addWidget(self.card_mejor_costo, 1, 0)
+        layout.addWidget(self.card_recompensa, 1, 1)
+        layout.addWidget(self.card_entregas, 2, 0)
+        layout.addWidget(self.card_archivo, 2, 1)
+
+        layout.setColumnStretch(0, 1)
+        layout.setColumnStretch(1, 1)
+
+        self.scroll_metricas.setWidget(contenido)
+        layout_principal.addWidget(self.scroll_metricas)
+
+        return grupo
+
+    def _crear_botones_ventanas(self):
+        """
+        Crea botones para abrir ventanas secundarias.
+        """
+        grupo = QGroupBox("Ventanas de análisis")
+        layout = QGridLayout(grupo)
+
+        self.btn_pedidos = QPushButton("Ver pedidos")
+        self.btn_mapa = QPushButton("Ver mapa animado")
+        self.btn_aprendizaje = QPushButton("Ver aprendizaje detallado")
+        self.btn_tabla_q = QPushButton("Ver Tabla Q")
+
+        self.btn_pedidos.clicked.connect(self.abrir_pedidos)
+        self.btn_mapa.clicked.connect(self.abrir_mapa)
+        self.btn_aprendizaje.clicked.connect(self.abrir_aprendizaje)
+        self.btn_tabla_q.clicked.connect(self.abrir_tabla_q)
+
+        layout.addWidget(self.btn_pedidos, 0, 0)
+        layout.addWidget(self.btn_mapa, 0, 1)
+        layout.addWidget(self.btn_aprendizaje, 1, 0)
+        layout.addWidget(self.btn_tabla_q, 1, 1)
+
+        return grupo
+
+    def _crear_descripcion(self):
+        """
+        Explica cómo interpretar los valores.
+        """
+        texto = QPlainTextEdit()
+        texto.setReadOnly(True)
+        texto.setMaximumHeight(155)
+
+        texto.setPlainText(
+            "Interpretación rápida:\n"
+            "- 1 episodio = el agente empieza en el almacén y entrega a todos los pedidos disponibles una vez.\n"
+            "- Costo de Ruta bajo = ruta más eficiente.\n"
+            "- Recompensa alta = buena decisión del agente.\n"
+            "- Valor Q alto = el agente aprendió que esa acción conviene en ese estado.\n"
+            "- Epsilon alto = más exploración; epsilon bajo = más uso de lo aprendido.\n\n"
+            "El mapa animado es una simulación offline. No representa calles reales, "
+            "sino el orden de entrega elegido por el agente en un entorno visual tipo tablero."
+        )
+
+        return texto
+
+    # =====================================================
+    # ACCIONES PRINCIPALES
+    # =====================================================
+
+    def entrenar_agente(self):
+        """
+        Entrena al agente con los episodios y epsilon elegidos.
+        """
+        episodios = self.spin_episodios.value()
+        epsilon = self.spin_epsilon.value()
+
+        self._ejecutar_simulacion(
+            episodios=episodios,
+            epsilon=epsilon,
+            resetear_q=False
+        )
+
+    def ejecutar_con_aprendizaje(self):
+        """
+        Ejecuta usando la Tabla Q guardada, respetando la cantidad
+        de episodios escrita por el usuario en la interfaz.
+
+        Se usa epsilon bajo para que el agente use principalmente
+        lo que ya aprendió.
+        """
+        episodios = self.spin_episodios.value()
+
+        self._ejecutar_simulacion(
+            episodios=episodios,
+            epsilon=0.05,
+            resetear_q=False
+        )
+
+    def resetear_tabla_q(self):
+        """
+        Borra la Tabla Q guardada.
+        """
+        respuesta = QMessageBox.question(
+            self,
+            "Resetear Tabla Q",
+            "¿Seguro que deseas borrar el aprendizaje guardado?",
+            QMessageBox.Yes | QMessageBox.No
+        )
+
+        if respuesta == QMessageBox.Yes:
+            resultado = resetear_aprendizaje()
+
+            self.resultado_actual = None
+
+            self.card_episodios.set_valor("-")
+            self.card_valores_q.set_valor("-")
+            self.card_mejor_costo.set_valor("-")
+            self.card_recompensa.set_valor("-")
+            self.card_entregas.set_valor("-")
+
+            QMessageBox.information(
+                self,
+                "Tabla Q",
+                resultado.get("mensaje", "Tabla Q reiniciada.")
             )
 
-            total_costo = sum(
-                ep["costo_total"]
-                for ep in q["resultados"]
+    def _ejecutar_simulacion(self, episodios, epsilon, resetear_q):
+        """
+        Llama al backend principal y actualiza métricas.
+        """
+        try:
+            self.resultado_actual = ejecutar_simulacion_beta(
+                episodios=episodios,
+                guardar_q=True,
+                resetear_q=resetear_q,
+                epsilon=epsilon
             )
 
-            cantidad_q = q["cantidad_valores_q"]
+            self._actualizar_resumen()
 
-            fila_base = (len(tarjetas) // 2) + 1
-
-            self._crear_tarjeta(
-                fila_base,
-                0,
-                "Recompensa Q-Learning",
-                round(total_recompensa, 2),
-                C_GREEN
+            QMessageBox.information(
+                self,
+                "Simulación terminada",
+                "La simulación se ejecutó correctamente."
             )
 
-            self._crear_tarjeta(
-                fila_base,
-                1,
-                "Costo Q-Learning",
-                round(total_costo, 2),
-                C_BLUE
+        except Exception as error:
+            QMessageBox.critical(
+                self,
+                "Error",
+                f"Ocurrió un error durante la simulación:\n\n{error}"
             )
 
-            self._crear_tarjeta(
-                fila_base + 1,
-                0,
-                "Valores Tabla Q",
-                cantidad_q,
-                C_ORANGE
+    def _actualizar_resumen(self):
+        """
+        Actualiza las tarjetas de resumen en la ventana principal.
+        """
+        resultado = self.resultado_actual
+
+        if not resultado:
+            return
+
+        mejor = resultado.get("mejor_ruta")
+
+        self.card_episodios.set_valor(len(resultado.get("resultados", [])))
+        self.card_valores_q.set_valor(resultado.get("cantidad_valores_q", 0))
+
+        if mejor:
+            self.card_mejor_costo.set_valor(mejor.get("costo_total"))
+            self.card_recompensa.set_valor(mejor.get("recompensa_total"))
+            self.card_entregas.set_valor(mejor.get("entregas_completadas"))
+
+    # =====================================================
+    # ABRIR VENTANAS SECUNDARIAS
+    # =====================================================
+
+    def abrir_pedidos(self):
+        """
+        Abre ventana de pedidos.
+        """
+        ventana = VentanaPedidos(self.datos_json, self)
+        ventana.exec()
+
+    def abrir_mapa(self):
+        """
+        Abre ventana de mapa animado.
+        """
+        if not self.resultado_actual:
+            QMessageBox.warning(
+                self,
+                "Sin simulación",
+                "Primero debes entrenar o ejecutar el agente."
             )
+            return
 
-            episodios = len(q["resultados"])
+        ventana = VentanaMapa(self.datos_json, self.resultado_actual, self)
+        ventana.exec()
 
-            self._crear_tarjeta(
-                fila_base + 1,
-                1,
-                "Episodios",
-                episodios,
-                C_RED
+    def abrir_aprendizaje(self):
+        """
+        Abre ventana de aprendizaje detallado.
+        """
+        if not self.resultado_actual:
+            QMessageBox.warning(
+                self,
+                "Sin simulación",
+                "Primero debes entrenar o ejecutar el agente."
             )
+            return
 
-            # =============================================
-            # DETALLE EPISODIOS
-            # =============================================
+        ventana = VentanaAprendizaje(self.resultado_actual, self)
+        ventana.exec()
 
-            titulo = ctk.CTkLabel(
-                self.metricas_frame,
-                text="🧠 Episodios del Agente Q-Learning",
-                font=ctk.CTkFont(
-                    size=15,
-                    weight="bold"
-                ),
-                text_color=C_HEADER
+    def abrir_tabla_q(self):
+        """
+        Abre ventana de Tabla Q.
+        """
+        if not self.resultado_actual:
+            QMessageBox.warning(
+                self,
+                "Sin simulación",
+                "Primero debes entrenar o ejecutar el agente."
             )
+            return
 
-            titulo.grid(
-                row=fila_base + 2,
-                column=0,
-                columnspan=2,
-                sticky="w",
-                padx=8,
-                pady=(20, 10)
-            )
+        ventana = VentanaTablaQ(self.resultado_actual, self)
+        ventana.exec()
 
-            fila = fila_base + 3
+    # =====================================================
+    # ESTILOS
+    # =====================================================
 
-            for ep in q["resultados"]:
+    def _aplicar_estilos(self):
+        """
+        Aplica estilo visual general.
+        """
+        self.setStyleSheet(f"""
+            QMainWindow {{
+                background-color: {COLOR_FONDO};
+            }}
 
-                frame_ep = ctk.CTkFrame(
-                    self.metricas_frame,
-                    fg_color="#eef4ff",
-                    corner_radius=12,
-                    border_width=1,
-                    border_color="#c7d7fe"
-                )
+            QDialog {{
+                background-color: {COLOR_FONDO};
+            }}
 
-                frame_ep.grid(
-                    row=fila,
-                    column=0,
-                    columnspan=2,
-                    sticky="ew",
-                    padx=8,
-                    pady=6
-                )
+            QWidget {{
+                font-family: Segoe UI;
+                font-size: 13px;
+                color: {COLOR_TEXTO};
+            }}
 
-                acciones = []
+            QFrame#header {{
+                background-color: {COLOR_HEADER};
+                border-radius: 0px;
+                padding: 12px;
+            }}
 
-                for paso in ep["ruta"]:
-                    acciones.append(
-                        f"P{paso['pedido']}"
-                    )
+            QLabel#tituloHeader {{
+                color: white;
+                font-size: 28px;
+                font-weight: bold;
+            }}
 
-                acciones_txt = " ➜ ".join(acciones)
+            QLabel#subtituloHeader {{
+                color: #c7d2fe;
+                font-size: 13px;
+            }}
 
-                texto = (
-                    f"📘 Episodio {ep['episodio']}\n\n"
-                    f"🚚 Entregas completadas: {ep['entregas_completadas']}\n"
-                    f"🏆 Recompensa total: {ep['recompensa_total']}\n"
-                    f"💰 Costo total: {ep['costo_total']}\n"
-                    f"🧭 Acciones elegidas: {acciones_txt}"
-                )
+            QLabel#tituloVentana {{
+                font-size: 22px;
+                font-weight: bold;
+                color: {COLOR_HEADER};
+            }}
 
-                ctk.CTkLabel(
-                    frame_ep,
-                    text=texto,
-                    justify="left",
-                    anchor="w",
-                    font=ctk.CTkFont(
-                        family="Courier New",
-                        size=11
-                    ),
-                    text_color=C_TEXT
-                ).pack(
-                    fill="x",
-                    padx=15,
-                    pady=12
-                )
+            QLabel#notaImportante {{
+                background-color: #fff7ed;
+                border: 1px solid #fed7aa;
+                border-radius: 8px;
+                padding: 8px;
+                color: #9a3412;
+            }}
 
-                fila += 1
+            QGroupBox {{
+                background-color: {COLOR_CARD};
+                border: 1px solid #d1d5db;
+                border-radius: 10px;
+                margin-top: 12px;
+                padding: 10px;
+                font-weight: bold;
+            }}
+
+            QGroupBox::title {{
+                subcontrol-origin: margin;
+                left: 12px;
+                padding: 0 6px;
+            }}
+
+            QPushButton {{
+                background-color: {COLOR_AZUL};
+                color: white;
+                border: none;
+                border-radius: 8px;
+                padding: 9px 14px;
+                font-weight: bold;
+            }}
+
+            QPushButton:hover {{
+                background-color: {COLOR_AZUL_OSCURO};
+            }}
+
+            QPlainTextEdit {{
+                background-color: #f8fafc;
+                border: 1px solid #d1d5db;
+                border-radius: 8px;
+                padding: 8px;
+                font-family: Consolas;
+                font-size: 12px;
+            }}
+
+            QTableWidget {{
+                background-color: white;
+                border: 1px solid #d1d5db;
+                gridline-color: #e5e7eb;
+            }}
+
+            QHeaderView::section {{
+                background-color: #e5e7eb;
+                padding: 6px;
+                border: 1px solid #d1d5db;
+                font-weight: bold;
+            }}
+
+            QFrame#tarjetaMetrica {{
+                background-color: white;
+                border: 1px solid #d1d5db;
+                border-radius: 10px;
+                padding: 8px;
+            }}
+
+            QScrollArea {{
+                border: none;
+                background-color: transparent;
+            }}
+        """)
 
 
-# ─────────────────────────────────────────────────────────────
-# MAIN
-# ─────────────────────────────────────────────────────────────
+# =========================================================
+# EJECUCIÓN
+# =========================================================
+
 if __name__ == "__main__":
+    app = QApplication(sys.argv)
 
-    app = App()
+    ventana = VentanaPrincipal()
+    ventana.show()
 
-    app.mainloop()
+    sys.exit(app.exec())

@@ -1,0 +1,1275 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_0ebcafa99b783b75eb78d393e4619214 {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+
+            <style>html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            </style>
+
+            <style>#map {
+                position:absolute;
+                top:0;
+                bottom:0;
+                right:0;
+                left:0;
+                }
+            </style>
+
+            <script>
+                L_NO_TOUCH = false;
+                L_DISABLE_3D = false;
+            </script>
+
+        
+</head>
+<body>
+    
+    
+            <div class="folium-map" id="map_0ebcafa99b783b75eb78d393e4619214" ></div>
+        
+</body>
+<script>
+    
+    
+            var map_0ebcafa99b783b75eb78d393e4619214 = L.map(
+                "map_0ebcafa99b783b75eb78d393e4619214",
+                {
+                    center: [-12.0464, -77.0428],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 13,
+  "zoomControl": true,
+  "preferCanvas": false,
+}
+
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_c481ba014b0a680e17a49341755ec27a = L.tileLayer(
+                "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 20,
+  "maxNativeZoom": 20,
+  "noWrap": false,
+  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors \u0026copy; \u003ca href=\"https://carto.com/attributions\"\u003eCARTO\u003c/a\u003e",
+  "subdomains": "abcd",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_c481ba014b0a680e17a49341755ec27a.addTo(map_0ebcafa99b783b75eb78d393e4619214);
+        
+    
+            var marker_19d00d8dad737ca41a0d1ffdc37dde30 = L.marker(
+                [-12.0464, -77.0428],
+                {
+}
+            ).addTo(map_0ebcafa99b783b75eb78d393e4619214);
+        
+    
+            var icon_81449150a505d7a080cf486322a52316 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "home",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_f39958e40733cab59b4c1f5b99f65614 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_ca80aa372fd6169a38c18f2ccc5127f2 = $(`<div id="html_ca80aa372fd6169a38c18f2ccc5127f2" style="width: 100.0%; height: 100.0%;">Almacén<br>Calle Central 123, Centro</div>`)[0];
+                popup_f39958e40733cab59b4c1f5b99f65614.setContent(html_ca80aa372fd6169a38c18f2ccc5127f2);
+            
+        
+
+        marker_19d00d8dad737ca41a0d1ffdc37dde30.bindPopup(popup_f39958e40733cab59b4c1f5b99f65614)
+        ;
+
+        
+    
+    
+            marker_19d00d8dad737ca41a0d1ffdc37dde30.bindTooltip(
+                `<div>
+                     Almacén
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_19d00d8dad737ca41a0d1ffdc37dde30.setIcon(icon_81449150a505d7a080cf486322a52316);
+            
+    
+            var marker_bc742952f54f9b00f863b7ede5d5c9ff = L.marker(
+                [-12.0895, -77.0087],
+                {
+}
+            ).addTo(map_0ebcafa99b783b75eb78d393e4619214);
+        
+    
+            var icon_52d7ec58f02c3d838e2f05bf16efdc5a = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "purple",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_58cd43472c9ea12466fe9e28947f7e05 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_34c007f513b14d61c25a6da5fe7e3f10 = $(`<div id="html_34c007f513b14d61c25a6da5fe7e3f10" style="width: 100.0%; height: 100.0%;"><b>Pedido P1</b><br>Cliente: Juan Pérez<br>Dirección: Av. Brasil 456, San Borja<br>Prioridad: alta<br>Tráfico: bajo<br>Distancia: 3.5 km<br>Tiempo: 15 min<br>Bloqueada: No</div>`)[0];
+                popup_58cd43472c9ea12466fe9e28947f7e05.setContent(html_34c007f513b14d61c25a6da5fe7e3f10);
+            
+        
+
+        marker_bc742952f54f9b00f863b7ede5d5c9ff.bindPopup(popup_58cd43472c9ea12466fe9e28947f7e05)
+        ;
+
+        
+    
+    
+            marker_bc742952f54f9b00f863b7ede5d5c9ff.bindTooltip(
+                `<div>
+                     P1 - Juan Pérez
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_bc742952f54f9b00f863b7ede5d5c9ff.setIcon(icon_52d7ec58f02c3d838e2f05bf16efdc5a);
+            
+    
+            var marker_407f4f9e13b08c4d1cee812aa1c166f3 = L.marker(
+                [-11.9685, -77.0325],
+                {
+}
+            ).addTo(map_0ebcafa99b783b75eb78d393e4619214);
+        
+    
+            var icon_5393e144926803423d4be3f1af5b7294 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_7680883f1d41c8c1397ef60cf5b07fc1 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_c0adb014e8caa10a12ffd2373581e813 = $(`<div id="html_c0adb014e8caa10a12ffd2373581e813" style="width: 100.0%; height: 100.0%;"><b>Pedido P2</b><br>Cliente: María García<br>Dirección: Jr. Los Olivos 789, Los Olivos<br>Prioridad: media<br>Tráfico: medio<br>Distancia: 8.2 km<br>Tiempo: 35 min<br>Bloqueada: No</div>`)[0];
+                popup_7680883f1d41c8c1397ef60cf5b07fc1.setContent(html_c0adb014e8caa10a12ffd2373581e813);
+            
+        
+
+        marker_407f4f9e13b08c4d1cee812aa1c166f3.bindPopup(popup_7680883f1d41c8c1397ef60cf5b07fc1)
+        ;
+
+        
+    
+    
+            marker_407f4f9e13b08c4d1cee812aa1c166f3.bindTooltip(
+                `<div>
+                     P2 - María García
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_407f4f9e13b08c4d1cee812aa1c166f3.setIcon(icon_5393e144926803423d4be3f1af5b7294);
+            
+    
+            var marker_aeb7fed8c3aac51d19e6ed01b0fb8dc6 = L.marker(
+                [-12.0785, -77.0925],
+                {
+}
+            ).addTo(map_0ebcafa99b783b75eb78d393e4619214);
+        
+    
+            var icon_97ab349c05058d4b72afd167c73d7fb3 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "orange",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_840e22641c46175921cbbd7e7eebac47 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_a5644d3937678a8435b96e1b85dfb3fc = $(`<div id="html_a5644d3937678a8435b96e1b85dfb3fc" style="width: 100.0%; height: 100.0%;"><b>Pedido P3</b><br>Cliente: Carlos Rodríguez<br>Dirección: Av. La Marina 321, San Miguel<br>Prioridad: alta<br>Tráfico: alto<br>Distancia: 5.8 km<br>Tiempo: 25 min<br>Bloqueada: No</div>`)[0];
+                popup_840e22641c46175921cbbd7e7eebac47.setContent(html_a5644d3937678a8435b96e1b85dfb3fc);
+            
+        
+
+        marker_aeb7fed8c3aac51d19e6ed01b0fb8dc6.bindPopup(popup_840e22641c46175921cbbd7e7eebac47)
+        ;
+
+        
+    
+    
+            marker_aeb7fed8c3aac51d19e6ed01b0fb8dc6.bindTooltip(
+                `<div>
+                     P3 - Carlos Rodríguez
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_aeb7fed8c3aac51d19e6ed01b0fb8dc6.setIcon(icon_97ab349c05058d4b72afd167c73d7fb3);
+            
+    
+            var marker_bf29f35fbf57ac8c1678a372e8cd045d = L.marker(
+                [-12.1585, -76.9925],
+                {
+}
+            ).addTo(map_0ebcafa99b783b75eb78d393e4619214);
+        
+    
+            var icon_d20ded74e6fe43e0012e82244700e348 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_3e194e85ddcdb0f4b2225b4519a91e98 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_8ba5e00e8f99cd769411d3b31a2fb002 = $(`<div id="html_8ba5e00e8f99cd769411d3b31a2fb002" style="width: 100.0%; height: 100.0%;"><b>Pedido P4</b><br>Cliente: Ana Martínez<br>Dirección: Calle Las Flores 567, Surco<br>Prioridad: baja<br>Tráfico: bajo<br>Distancia: 12.4 km<br>Tiempo: 50 min<br>Bloqueada: No</div>`)[0];
+                popup_3e194e85ddcdb0f4b2225b4519a91e98.setContent(html_8ba5e00e8f99cd769411d3b31a2fb002);
+            
+        
+
+        marker_bf29f35fbf57ac8c1678a372e8cd045d.bindPopup(popup_3e194e85ddcdb0f4b2225b4519a91e98)
+        ;
+
+        
+    
+    
+            marker_bf29f35fbf57ac8c1678a372e8cd045d.bindTooltip(
+                `<div>
+                     P4 - Ana Martínez
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_bf29f35fbf57ac8c1678a372e8cd045d.setIcon(icon_d20ded74e6fe43e0012e82244700e348);
+            
+    
+            var marker_8b1b8cef54641b6c9121a44d1709f946 = L.marker(
+                [-12.1085, -77.0325],
+                {
+}
+            ).addTo(map_0ebcafa99b783b75eb78d393e4619214);
+        
+    
+            var icon_03060f633fa6032db34c444cb2003d76 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "purple",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_88b54f769dc77632a7204e0d84651ffe = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_32625daa3b35c71608e94b04011ffe27 = $(`<div id="html_32625daa3b35c71608e94b04011ffe27" style="width: 100.0%; height: 100.0%;"><b>Pedido P5</b><br>Cliente: Pedro Sánchez<br>Dirección: Av. Benavides 890, Miraflores<br>Prioridad: alta<br>Tráfico: medio<br>Distancia: 6.7 km<br>Tiempo: 30 min<br>Bloqueada: No</div>`)[0];
+                popup_88b54f769dc77632a7204e0d84651ffe.setContent(html_32625daa3b35c71608e94b04011ffe27);
+            
+        
+
+        marker_8b1b8cef54641b6c9121a44d1709f946.bindPopup(popup_88b54f769dc77632a7204e0d84651ffe)
+        ;
+
+        
+    
+    
+            marker_8b1b8cef54641b6c9121a44d1709f946.bindTooltip(
+                `<div>
+                     P5 - Pedro Sánchez
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_8b1b8cef54641b6c9121a44d1709f946.setIcon(icon_03060f633fa6032db34c444cb2003d76);
+            
+    
+            var marker_7756d4fb8a97e344e717798403af68f0 = L.marker(
+                [-11.9385, -77.0425],
+                {
+}
+            ).addTo(map_0ebcafa99b783b75eb78d393e4619214);
+        
+    
+            var icon_35dabc102c92800021e85273235da18f = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "orange",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_94c266a7da794a748564ff901bfab710 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_fca41341682d2762b3694f84fed79ddd = $(`<div id="html_fca41341682d2762b3694f84fed79ddd" style="width: 100.0%; height: 100.0%;"><b>Pedido P6</b><br>Cliente: Luisa Fernández<br>Dirección: Jr. Comas 234, Comas<br>Prioridad: baja<br>Tráfico: alto<br>Distancia: 14.2 km<br>Tiempo: 58 min<br>Bloqueada: No</div>`)[0];
+                popup_94c266a7da794a748564ff901bfab710.setContent(html_fca41341682d2762b3694f84fed79ddd);
+            
+        
+
+        marker_7756d4fb8a97e344e717798403af68f0.bindPopup(popup_94c266a7da794a748564ff901bfab710)
+        ;
+
+        
+    
+    
+            marker_7756d4fb8a97e344e717798403af68f0.bindTooltip(
+                `<div>
+                     P6 - Luisa Fernández
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_7756d4fb8a97e344e717798403af68f0.setIcon(icon_35dabc102c92800021e85273235da18f);
+            
+    
+            var marker_b7e1fec38fded39867095892bce34482 = L.marker(
+                [-12.0585, -77.0428],
+                {
+}
+            ).addTo(map_0ebcafa99b783b75eb78d393e4619214);
+        
+    
+            var icon_a9f2317fd4c2183afd6da1a0887af3b9 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "purple",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_5939ab98d52998212d6b585ab64681bc = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_811145b9dbf3affe22a8d8dbed5615c4 = $(`<div id="html_811145b9dbf3affe22a8d8dbed5615c4" style="width: 100.0%; height: 100.0%;"><b>Pedido P7</b><br>Cliente: Roberto Díaz<br>Dirección: Av. Garcilaso 678, Centro<br>Prioridad: alta<br>Tráfico: bajo<br>Distancia: 1.8 km<br>Tiempo: 10 min<br>Bloqueada: No</div>`)[0];
+                popup_5939ab98d52998212d6b585ab64681bc.setContent(html_811145b9dbf3affe22a8d8dbed5615c4);
+            
+        
+
+        marker_b7e1fec38fded39867095892bce34482.bindPopup(popup_5939ab98d52998212d6b585ab64681bc)
+        ;
+
+        
+    
+    
+            marker_b7e1fec38fded39867095892bce34482.bindTooltip(
+                `<div>
+                     P7 - Roberto Díaz
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_b7e1fec38fded39867095892bce34482.setIcon(icon_a9f2317fd4c2183afd6da1a0887af3b9);
+            
+    
+            var marker_0ff45155f9873da2ea9720e14d4c3852 = L.marker(
+                [-12.0785, -76.9425],
+                {
+}
+            ).addTo(map_0ebcafa99b783b75eb78d393e4619214);
+        
+    
+            var icon_ddc1d2b478f4d20f24ea9f22283f4e70 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_018580328c29503921186d4f45e91210 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_3ec2666bc5d0527435259b6059ff0007 = $(`<div id="html_3ec2666bc5d0527435259b6059ff0007" style="width: 100.0%; height: 100.0%;"><b>Pedido P8</b><br>Cliente: Carmen López<br>Dirección: Calle Primavera 456, La Molina<br>Prioridad: media<br>Tráfico: medio<br>Distancia: 10.5 km<br>Tiempo: 45 min<br>Bloqueada: No</div>`)[0];
+                popup_018580328c29503921186d4f45e91210.setContent(html_3ec2666bc5d0527435259b6059ff0007);
+            
+        
+
+        marker_0ff45155f9873da2ea9720e14d4c3852.bindPopup(popup_018580328c29503921186d4f45e91210)
+        ;
+
+        
+    
+    
+            marker_0ff45155f9873da2ea9720e14d4c3852.bindTooltip(
+                `<div>
+                     P8 - Carmen López
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_0ff45155f9873da2ea9720e14d4c3852.setIcon(icon_ddc1d2b478f4d20f24ea9f22283f4e70);
+            
+    
+            var marker_4886cc42501d630979ec7a9ee7f1b01a = L.marker(
+                [-11.9585, -77.0625],
+                {
+}
+            ).addTo(map_0ebcafa99b783b75eb78d393e4619214);
+        
+    
+            var icon_a7dd5e1e568caae16e8928a64008efd8 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "red",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_8638e7d22a0e9564febb9030b51285c5 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_e836e37ee11ebd9e0c93b00a4b651927 = $(`<div id="html_e836e37ee11ebd9e0c93b00a4b651927" style="width: 100.0%; height: 100.0%;"><b>Pedido P9</b><br>Cliente: Jorge Torres<br>Dirección: Av. Tupac Amaru 890, Independencia<br>Prioridad: baja<br>Tráfico: alto<br>Distancia: 11.8 km<br>Tiempo: 55 min<br>Bloqueada: Sí</div>`)[0];
+                popup_8638e7d22a0e9564febb9030b51285c5.setContent(html_e836e37ee11ebd9e0c93b00a4b651927);
+            
+        
+
+        marker_4886cc42501d630979ec7a9ee7f1b01a.bindPopup(popup_8638e7d22a0e9564febb9030b51285c5)
+        ;
+
+        
+    
+    
+            marker_4886cc42501d630979ec7a9ee7f1b01a.bindTooltip(
+                `<div>
+                     P9 - Jorge Torres
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_4886cc42501d630979ec7a9ee7f1b01a.setIcon(icon_a7dd5e1e568caae16e8928a64008efd8);
+            
+    
+            var marker_93be33289383b390165839f8dae247b3 = L.marker(
+                [-12.1185, -77.0125],
+                {
+}
+            ).addTo(map_0ebcafa99b783b75eb78d393e4619214);
+        
+    
+            var icon_8851ac3e7e2cf73997308063355e991f = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_58122b6545c254a6b8abbd270d74a23b = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_ba5e6ed9df0cf1ce90db3bb027d9b1c9 = $(`<div id="html_ba5e6ed9df0cf1ce90db3bb027d9b1c9" style="width: 100.0%; height: 100.0%;"><b>Pedido P10</b><br>Cliente: Sofía Ramírez<br>Dirección: Av. San Juan 345, Surquillo<br>Prioridad: media<br>Tráfico: bajo<br>Distancia: 4.2 km<br>Tiempo: 20 min<br>Bloqueada: No</div>`)[0];
+                popup_58122b6545c254a6b8abbd270d74a23b.setContent(html_ba5e6ed9df0cf1ce90db3bb027d9b1c9);
+            
+        
+
+        marker_93be33289383b390165839f8dae247b3.bindPopup(popup_58122b6545c254a6b8abbd270d74a23b)
+        ;
+
+        
+    
+    
+            marker_93be33289383b390165839f8dae247b3.bindTooltip(
+                `<div>
+                     P10 - Sofía Ramírez
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_93be33289383b390165839f8dae247b3.setIcon(icon_8851ac3e7e2cf73997308063355e991f);
+            
+    
+            var marker_94d1766385c5c3cdda8ce806282de842 = L.marker(
+                [-12.0885, -77.0325],
+                {
+}
+            ).addTo(map_0ebcafa99b783b75eb78d393e4619214);
+        
+    
+            var icon_0ed10c0c3dce6ae93780d191ca80c5cc = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "purple",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_8b3db41244040adbf122db21b27d8019 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_4b3534257bb34d364df7a42e505747d2 = $(`<div id="html_4b3534257bb34d364df7a42e505747d2" style="width: 100.0%; height: 100.0%;"><b>Pedido P11</b><br>Cliente: Diego Morales<br>Dirección: Calle Los Pinos 789, Lince<br>Prioridad: alta<br>Tráfico: bajo<br>Distancia: 2.9 km<br>Tiempo: 12 min<br>Bloqueada: No</div>`)[0];
+                popup_8b3db41244040adbf122db21b27d8019.setContent(html_4b3534257bb34d364df7a42e505747d2);
+            
+        
+
+        marker_94d1766385c5c3cdda8ce806282de842.bindPopup(popup_8b3db41244040adbf122db21b27d8019)
+        ;
+
+        
+    
+    
+            marker_94d1766385c5c3cdda8ce806282de842.bindTooltip(
+                `<div>
+                     P11 - Diego Morales
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_94d1766385c5c3cdda8ce806282de842.setIcon(icon_0ed10c0c3dce6ae93780d191ca80c5cc);
+            
+    
+            var marker_eb40cda6892c91c2b277f88050d433fd = L.marker(
+                [-12.0685, -77.0725],
+                {
+}
+            ).addTo(map_0ebcafa99b783b75eb78d393e4619214);
+        
+    
+            var icon_df57ecc6030e3c80bf4f8473e0a07a2b = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_1da8b7c2e7811c63ba9820870dd0acc1 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_5de7f6aaf5e8bc9082248609d6b76c3a = $(`<div id="html_5de7f6aaf5e8bc9082248609d6b76c3a" style="width: 100.0%; height: 100.0%;"><b>Pedido P12</b><br>Cliente: Patricia Castro<br>Dirección: Av. Colonial 567, Pueblo Libre<br>Prioridad: media<br>Tráfico: medio<br>Distancia: 4.8 km<br>Tiempo: 22 min<br>Bloqueada: No</div>`)[0];
+                popup_1da8b7c2e7811c63ba9820870dd0acc1.setContent(html_5de7f6aaf5e8bc9082248609d6b76c3a);
+            
+        
+
+        marker_eb40cda6892c91c2b277f88050d433fd.bindPopup(popup_1da8b7c2e7811c63ba9820870dd0acc1)
+        ;
+
+        
+    
+    
+            marker_eb40cda6892c91c2b277f88050d433fd.bindTooltip(
+                `<div>
+                     P12 - Patricia Castro
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_eb40cda6892c91c2b277f88050d433fd.setIcon(icon_df57ecc6030e3c80bf4f8473e0a07a2b);
+            
+    
+            var marker_3b237005cb30b75e5247b21f43c361ea = L.marker(
+                [-12.0895, -77.0087],
+                {
+}
+            ).addTo(map_0ebcafa99b783b75eb78d393e4619214);
+        
+    
+            var icon_9197da02e1fbcd466fa39d775d5c619f = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "darkblue",
+  "iconColor": "white",
+  "icon": "flag",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_cf2f00ebac9be80591d88cb1c0303885 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_98ff1c3b3868fc9a8070543e1b52ee4c = $(`<div id="html_98ff1c3b3868fc9a8070543e1b52ee4c" style="width: 100.0%; height: 100.0%;"><b>Orden 1</b><br>Pedido: P1<br>Destino: Juan Pérez<br>Decisión: explotación<br>Costo: 2.0<br>Recompensa: 98.0<br>Q: 0.0 → 9.8<br><br>El agente eligió esta acción por explotación. Esto significa que usó lo aprendido en la Tabla Q para seleccionar la acción con mejor valor conocido en ese estado. Se escogió el pedido P1 porque la ruta está disponible y no se encuentra bloqueada; el pedido tiene prioridad alta; el tráfico es bajo; la distancia es corta; el tiempo estimado es bajo. El Costo de Ruta calculado fue 2.0 y la recompensa obtenida fue 98.0.</div>`)[0];
+                popup_cf2f00ebac9be80591d88cb1c0303885.setContent(html_98ff1c3b3868fc9a8070543e1b52ee4c);
+            
+        
+
+        marker_3b237005cb30b75e5247b21f43c361ea.bindPopup(popup_cf2f00ebac9be80591d88cb1c0303885)
+        ;
+
+        
+    
+    
+            marker_3b237005cb30b75e5247b21f43c361ea.bindTooltip(
+                `<div>
+                     Orden 1: P1
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_3b237005cb30b75e5247b21f43c361ea.setIcon(icon_9197da02e1fbcd466fa39d775d5c619f);
+            
+    
+            var marker_e2d19a16b1e3dea7d7447a6d1810c17d = L.marker(
+                [-11.9685, -77.0325],
+                {
+}
+            ).addTo(map_0ebcafa99b783b75eb78d393e4619214);
+        
+    
+            var icon_a153de2672e12577d3d04722f573dfe2 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "darkblue",
+  "iconColor": "white",
+  "icon": "flag",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_ca5c28e2372bbf392f51d39224992eef = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_9b81333a4dbf4a1138b67d9e07e5363f = $(`<div id="html_9b81333a4dbf4a1138b67d9e07e5363f" style="width: 100.0%; height: 100.0%;"><b>Orden 2</b><br>Pedido: P2<br>Destino: María García<br>Decisión: explotación<br>Costo: 13.7<br>Recompensa: 86.3<br>Q: 0.0 → 8.63<br><br>El agente eligió esta acción por explotación. Esto significa que usó lo aprendido en la Tabla Q para seleccionar la acción con mejor valor conocido en ese estado. Se escogió el pedido P2 porque la ruta está disponible y no se encuentra bloqueada; el pedido tiene prioridad media; el tráfico es medio, por lo que tiene una penalización moderada; la distancia es larga; el tiempo estimado es aceptable. El Costo de Ruta calculado fue 13.7 y la recompensa obtenida fue 86.3.</div>`)[0];
+                popup_ca5c28e2372bbf392f51d39224992eef.setContent(html_9b81333a4dbf4a1138b67d9e07e5363f);
+            
+        
+
+        marker_e2d19a16b1e3dea7d7447a6d1810c17d.bindPopup(popup_ca5c28e2372bbf392f51d39224992eef)
+        ;
+
+        
+    
+    
+            marker_e2d19a16b1e3dea7d7447a6d1810c17d.bindTooltip(
+                `<div>
+                     Orden 2: P2
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_e2d19a16b1e3dea7d7447a6d1810c17d.setIcon(icon_a153de2672e12577d3d04722f573dfe2);
+            
+    
+            var marker_6b85342095c2ae7294f9acc870c20a52 = L.marker(
+                [-12.0785, -76.9425],
+                {
+}
+            ).addTo(map_0ebcafa99b783b75eb78d393e4619214);
+        
+    
+            var icon_7fa40c66600529b7a1ea1f8497cd735b = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "darkblue",
+  "iconColor": "white",
+  "icon": "flag",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_e03ea24d87bf55cf7afcd37ad02cde08 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_7efde6dcfa2e0a94b283c7255b6e8f7b = $(`<div id="html_7efde6dcfa2e0a94b283c7255b6e8f7b" style="width: 100.0%; height: 100.0%;"><b>Orden 3</b><br>Pedido: P8<br>Destino: Carmen López<br>Decisión: exploración<br>Costo: 17.0<br>Recompensa: 83.0<br>Q: 0.0 → 8.3<br><br>El agente eligió esta acción por exploración. Esto significa que decidió probar una opción para descubrir si podía generar una buena recompensa. Se escogió el pedido P8 porque la ruta está disponible y no se encuentra bloqueada; el pedido tiene prioridad media; el tráfico es medio, por lo que tiene una penalización moderada; la distancia es larga; el tiempo estimado es aceptable. El Costo de Ruta calculado fue 17.0 y la recompensa obtenida fue 83.0.</div>`)[0];
+                popup_e03ea24d87bf55cf7afcd37ad02cde08.setContent(html_7efde6dcfa2e0a94b283c7255b6e8f7b);
+            
+        
+
+        marker_6b85342095c2ae7294f9acc870c20a52.bindPopup(popup_e03ea24d87bf55cf7afcd37ad02cde08)
+        ;
+
+        
+    
+    
+            marker_6b85342095c2ae7294f9acc870c20a52.bindTooltip(
+                `<div>
+                     Orden 3: P8
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_6b85342095c2ae7294f9acc870c20a52.setIcon(icon_7fa40c66600529b7a1ea1f8497cd735b);
+            
+    
+            var marker_9b092c7c36ee8e0838eba46ca58090c8 = L.marker(
+                [-12.0785, -77.0925],
+                {
+}
+            ).addTo(map_0ebcafa99b783b75eb78d393e4619214);
+        
+    
+            var icon_b59755dfd45a255b314d18984e9cd74f = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "darkblue",
+  "iconColor": "white",
+  "icon": "flag",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_a9b39bc2e183e1ebaced18a3da97c0f9 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_a90ba8a768ceb05e2280e36b989a9fe1 = $(`<div id="html_a90ba8a768ceb05e2280e36b989a9fe1" style="width: 100.0%; height: 100.0%;"><b>Orden 4</b><br>Pedido: P3<br>Destino: Carlos Rodríguez<br>Decisión: explotación<br>Costo: 10.3<br>Recompensa: 89.7<br>Q: 0.0 → 8.97<br><br>El agente eligió esta acción por explotación. Esto significa que usó lo aprendido en la Tabla Q para seleccionar la acción con mejor valor conocido en ese estado. Se escogió el pedido P3 porque la ruta está disponible y no se encuentra bloqueada; el pedido tiene prioridad alta; el tráfico es alto, por lo que recibe mayor penalización; la distancia es moderada; el tiempo estimado es aceptable. El Costo de Ruta calculado fue 10.3 y la recompensa obtenida fue 89.7.</div>`)[0];
+                popup_a9b39bc2e183e1ebaced18a3da97c0f9.setContent(html_a90ba8a768ceb05e2280e36b989a9fe1);
+            
+        
+
+        marker_9b092c7c36ee8e0838eba46ca58090c8.bindPopup(popup_a9b39bc2e183e1ebaced18a3da97c0f9)
+        ;
+
+        
+    
+    
+            marker_9b092c7c36ee8e0838eba46ca58090c8.bindTooltip(
+                `<div>
+                     Orden 4: P3
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_9b092c7c36ee8e0838eba46ca58090c8.setIcon(icon_b59755dfd45a255b314d18984e9cd74f);
+            
+    
+            var marker_d0b3659492d911122f0d46d790d7bed0 = L.marker(
+                [-12.1585, -76.9925],
+                {
+}
+            ).addTo(map_0ebcafa99b783b75eb78d393e4619214);
+        
+    
+            var icon_e7bbefde79c8d0c9f456abbe47dc179b = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "darkblue",
+  "iconColor": "white",
+  "icon": "flag",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_3f4b154beaf443107d06de6d42da59c2 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_e1c0d74a786f12df026512f7f1fd08fd = $(`<div id="html_e1c0d74a786f12df026512f7f1fd08fd" style="width: 100.0%; height: 100.0%;"><b>Orden 5</b><br>Pedido: P4<br>Destino: Ana Martínez<br>Decisión: explotación<br>Costo: 19.4<br>Recompensa: 80.6<br>Q: 0.0 → 8.06<br><br>El agente eligió esta acción por explotación. Esto significa que usó lo aprendido en la Tabla Q para seleccionar la acción con mejor valor conocido en ese estado. Se escogió el pedido P4 porque la ruta está disponible y no se encuentra bloqueada; el pedido tiene prioridad baja; el tráfico es bajo; la distancia es larga; el tiempo estimado es alto. El Costo de Ruta calculado fue 19.4 y la recompensa obtenida fue 80.6.</div>`)[0];
+                popup_3f4b154beaf443107d06de6d42da59c2.setContent(html_e1c0d74a786f12df026512f7f1fd08fd);
+            
+        
+
+        marker_d0b3659492d911122f0d46d790d7bed0.bindPopup(popup_3f4b154beaf443107d06de6d42da59c2)
+        ;
+
+        
+    
+    
+            marker_d0b3659492d911122f0d46d790d7bed0.bindTooltip(
+                `<div>
+                     Orden 5: P4
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_d0b3659492d911122f0d46d790d7bed0.setIcon(icon_e7bbefde79c8d0c9f456abbe47dc179b);
+            
+    
+            var marker_d3d8cea30936c737c70f1158aef96d02 = L.marker(
+                [-12.1085, -77.0325],
+                {
+}
+            ).addTo(map_0ebcafa99b783b75eb78d393e4619214);
+        
+    
+            var icon_1f8800e08187b77885369a427b60eec3 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "darkblue",
+  "iconColor": "white",
+  "icon": "flag",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_59a7b1a58fa0d4ab3accf4a637989654 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_4380f4263d5e0a70d5185952455d7aca = $(`<div id="html_4380f4263d5e0a70d5185952455d7aca" style="width: 100.0%; height: 100.0%;"><b>Orden 6</b><br>Pedido: P5<br>Destino: Pedro Sánchez<br>Decisión: explotación<br>Costo: 8.7<br>Recompensa: 91.3<br>Q: 0.0 → 9.13<br><br>El agente eligió esta acción por explotación. Esto significa que usó lo aprendido en la Tabla Q para seleccionar la acción con mejor valor conocido en ese estado. Se escogió el pedido P5 porque la ruta está disponible y no se encuentra bloqueada; el pedido tiene prioridad alta; el tráfico es medio, por lo que tiene una penalización moderada; la distancia es moderada; el tiempo estimado es aceptable. El Costo de Ruta calculado fue 8.7 y la recompensa obtenida fue 91.3.</div>`)[0];
+                popup_59a7b1a58fa0d4ab3accf4a637989654.setContent(html_4380f4263d5e0a70d5185952455d7aca);
+            
+        
+
+        marker_d3d8cea30936c737c70f1158aef96d02.bindPopup(popup_59a7b1a58fa0d4ab3accf4a637989654)
+        ;
+
+        
+    
+    
+            marker_d3d8cea30936c737c70f1158aef96d02.bindTooltip(
+                `<div>
+                     Orden 6: P5
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_d3d8cea30936c737c70f1158aef96d02.setIcon(icon_1f8800e08187b77885369a427b60eec3);
+            
+    
+            var marker_ded56a8ae3cc4b6baf65fe212e6c3dc6 = L.marker(
+                [-11.9385, -77.0425],
+                {
+}
+            ).addTo(map_0ebcafa99b783b75eb78d393e4619214);
+        
+    
+            var icon_7244ee9107955e01b61b5baebbe1278e = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "darkblue",
+  "iconColor": "white",
+  "icon": "flag",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_06e0233cb5ab81628c25232376ea046f = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_790197864bf5520e9df7ffc713732654 = $(`<div id="html_790197864bf5520e9df7ffc713732654" style="width: 100.0%; height: 100.0%;"><b>Orden 7</b><br>Pedido: P6<br>Destino: Luisa Fernández<br>Decisión: explotación<br>Costo: 27.0<br>Recompensa: 73.0<br>Q: 0.0 → 7.3<br><br>El agente eligió esta acción por explotación. Esto significa que usó lo aprendido en la Tabla Q para seleccionar la acción con mejor valor conocido en ese estado. Se escogió el pedido P6 porque la ruta está disponible y no se encuentra bloqueada; el pedido tiene prioridad baja; el tráfico es alto, por lo que recibe mayor penalización; la distancia es larga; el tiempo estimado es alto. El Costo de Ruta calculado fue 27.0 y la recompensa obtenida fue 73.0.</div>`)[0];
+                popup_06e0233cb5ab81628c25232376ea046f.setContent(html_790197864bf5520e9df7ffc713732654);
+            
+        
+
+        marker_ded56a8ae3cc4b6baf65fe212e6c3dc6.bindPopup(popup_06e0233cb5ab81628c25232376ea046f)
+        ;
+
+        
+    
+    
+            marker_ded56a8ae3cc4b6baf65fe212e6c3dc6.bindTooltip(
+                `<div>
+                     Orden 7: P6
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_ded56a8ae3cc4b6baf65fe212e6c3dc6.setIcon(icon_7244ee9107955e01b61b5baebbe1278e);
+            
+    
+            var marker_846c59b2d38f6b35c2f41b8dcd61eddc = L.marker(
+                [-12.0585, -77.0428],
+                {
+}
+            ).addTo(map_0ebcafa99b783b75eb78d393e4619214);
+        
+    
+            var icon_7b7addb7c426794933423f4ed35dd6cb = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "darkblue",
+  "iconColor": "white",
+  "icon": "flag",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_27d13e024dd2a10d33b464af532cb84e = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_f034e749540982f99005630ecd23415d = $(`<div id="html_f034e749540982f99005630ecd23415d" style="width: 100.0%; height: 100.0%;"><b>Orden 8</b><br>Pedido: P7<br>Destino: Roberto Díaz<br>Decisión: explotación<br>Costo: -0.2<br>Recompensa: 100.2<br>Q: 0.0 → 10.02<br><br>El agente eligió esta acción por explotación. Esto significa que usó lo aprendido en la Tabla Q para seleccionar la acción con mejor valor conocido en ese estado. Se escogió el pedido P7 porque la ruta está disponible y no se encuentra bloqueada; el pedido tiene prioridad alta; el tráfico es bajo; la distancia es corta; el tiempo estimado es bajo. El Costo de Ruta calculado fue -0.2 y la recompensa obtenida fue 100.2.</div>`)[0];
+                popup_27d13e024dd2a10d33b464af532cb84e.setContent(html_f034e749540982f99005630ecd23415d);
+            
+        
+
+        marker_846c59b2d38f6b35c2f41b8dcd61eddc.bindPopup(popup_27d13e024dd2a10d33b464af532cb84e)
+        ;
+
+        
+    
+    
+            marker_846c59b2d38f6b35c2f41b8dcd61eddc.bindTooltip(
+                `<div>
+                     Orden 8: P7
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_846c59b2d38f6b35c2f41b8dcd61eddc.setIcon(icon_7b7addb7c426794933423f4ed35dd6cb);
+            
+    
+            var marker_27e129e2d7fb9277fdb8d941973326fa = L.marker(
+                [-12.1185, -77.0125],
+                {
+}
+            ).addTo(map_0ebcafa99b783b75eb78d393e4619214);
+        
+    
+            var icon_300e9208c28ab80299b55f57963dd63a = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "darkblue",
+  "iconColor": "white",
+  "icon": "flag",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_ffe4493d4ace132c729ea8421627f16a = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_03a8e85b7dc0c5d3c21ca2f4defecc0f = $(`<div id="html_03a8e85b7dc0c5d3c21ca2f4defecc0f" style="width: 100.0%; height: 100.0%;"><b>Orden 9</b><br>Pedido: P10<br>Destino: Sofía Ramírez<br>Decisión: explotación<br>Costo: 6.2<br>Recompensa: 93.8<br>Q: 0.0 → 9.38<br><br>El agente eligió esta acción por explotación. Esto significa que usó lo aprendido en la Tabla Q para seleccionar la acción con mejor valor conocido en ese estado. Se escogió el pedido P10 porque la ruta está disponible y no se encuentra bloqueada; el pedido tiene prioridad media; el tráfico es bajo; la distancia es moderada; el tiempo estimado es bajo. El Costo de Ruta calculado fue 6.2 y la recompensa obtenida fue 93.8.</div>`)[0];
+                popup_ffe4493d4ace132c729ea8421627f16a.setContent(html_03a8e85b7dc0c5d3c21ca2f4defecc0f);
+            
+        
+
+        marker_27e129e2d7fb9277fdb8d941973326fa.bindPopup(popup_ffe4493d4ace132c729ea8421627f16a)
+        ;
+
+        
+    
+    
+            marker_27e129e2d7fb9277fdb8d941973326fa.bindTooltip(
+                `<div>
+                     Orden 9: P10
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_27e129e2d7fb9277fdb8d941973326fa.setIcon(icon_300e9208c28ab80299b55f57963dd63a);
+            
+    
+            var marker_362a3063259ab1bfed59e9f120db09bf = L.marker(
+                [-12.0885, -77.0325],
+                {
+}
+            ).addTo(map_0ebcafa99b783b75eb78d393e4619214);
+        
+    
+            var icon_0e01afdd79f11998a771e6e1afc5fb5b = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "darkblue",
+  "iconColor": "white",
+  "icon": "flag",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_75d16cfa53d71dd1e05ae50358a3bfb5 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_db236e676b58832be7f7735a231ffe4a = $(`<div id="html_db236e676b58832be7f7735a231ffe4a" style="width: 100.0%; height: 100.0%;"><b>Orden 10</b><br>Pedido: P11<br>Destino: Diego Morales<br>Decisión: explotación<br>Costo: 1.1<br>Recompensa: 98.9<br>Q: 0.0 → 9.89<br><br>El agente eligió esta acción por explotación. Esto significa que usó lo aprendido en la Tabla Q para seleccionar la acción con mejor valor conocido en ese estado. Se escogió el pedido P11 porque la ruta está disponible y no se encuentra bloqueada; el pedido tiene prioridad alta; el tráfico es bajo; la distancia es corta; el tiempo estimado es bajo. El Costo de Ruta calculado fue 1.1 y la recompensa obtenida fue 98.9.</div>`)[0];
+                popup_75d16cfa53d71dd1e05ae50358a3bfb5.setContent(html_db236e676b58832be7f7735a231ffe4a);
+            
+        
+
+        marker_362a3063259ab1bfed59e9f120db09bf.bindPopup(popup_75d16cfa53d71dd1e05ae50358a3bfb5)
+        ;
+
+        
+    
+    
+            marker_362a3063259ab1bfed59e9f120db09bf.bindTooltip(
+                `<div>
+                     Orden 10: P11
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_362a3063259ab1bfed59e9f120db09bf.setIcon(icon_0e01afdd79f11998a771e6e1afc5fb5b);
+            
+    
+            var marker_8226040edc40cb292ecff69f3c0ee3cb = L.marker(
+                [-12.0685, -77.0725],
+                {
+}
+            ).addTo(map_0ebcafa99b783b75eb78d393e4619214);
+        
+    
+            var icon_3495c001b5dd3f2972dbcfb0683a034a = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "darkblue",
+  "iconColor": "white",
+  "icon": "flag",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_9fee4bfe2d801806d07e3c0d2a8a3a0b = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_f27698b56a4d0e5db351c719b4cf18a2 = $(`<div id="html_f27698b56a4d0e5db351c719b4cf18a2" style="width: 100.0%; height: 100.0%;"><b>Orden 11</b><br>Pedido: P12<br>Destino: Patricia Castro<br>Decisión: exploración<br>Costo: 9.0<br>Recompensa: 91.0<br>Q: 0.0 → 9.1<br><br>El agente eligió esta acción por exploración. Esto significa que decidió probar una opción para descubrir si podía generar una buena recompensa. Se escogió el pedido P12 porque la ruta está disponible y no se encuentra bloqueada; el pedido tiene prioridad media; el tráfico es medio, por lo que tiene una penalización moderada; la distancia es moderada; el tiempo estimado es aceptable. El Costo de Ruta calculado fue 9.0 y la recompensa obtenida fue 91.0.</div>`)[0];
+                popup_9fee4bfe2d801806d07e3c0d2a8a3a0b.setContent(html_f27698b56a4d0e5db351c719b4cf18a2);
+            
+        
+
+        marker_8226040edc40cb292ecff69f3c0ee3cb.bindPopup(popup_9fee4bfe2d801806d07e3c0d2a8a3a0b)
+        ;
+
+        
+    
+    
+            marker_8226040edc40cb292ecff69f3c0ee3cb.bindTooltip(
+                `<div>
+                     Orden 11: P12
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_8226040edc40cb292ecff69f3c0ee3cb.setIcon(icon_3495c001b5dd3f2972dbcfb0683a034a);
+            
+    
+            var poly_line_87d654d837e0c62bbd4634cfefd8488e = L.polyline(
+                [[-12.0464, -77.0428], [-12.0895, -77.0087], [-11.9685, -77.0325], [-12.0785, -76.9425], [-12.0785, -77.0925], [-12.1585, -76.9925], [-12.1085, -77.0325], [-11.9385, -77.0425], [-12.0585, -77.0428], [-12.1185, -77.0125], [-12.0885, -77.0325], [-12.0685, -77.0725]],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "blue", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.9, "smoothFactor": 1.0, "stroke": true, "weight": 5}
+            ).addTo(map_0ebcafa99b783b75eb78d393e4619214);
+        
+    
+            poly_line_87d654d837e0c62bbd4634cfefd8488e.bindTooltip(
+                `<div>
+                     Ruta elegida por el agente
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            map_0ebcafa99b783b75eb78d393e4619214.fitBounds(
+                [[-12.0464, -77.0428], [-12.0895, -77.0087], [-11.9685, -77.0325], [-12.0785, -76.9425], [-12.0785, -77.0925], [-12.1585, -76.9925], [-12.1085, -77.0325], [-11.9385, -77.0425], [-12.0585, -77.0428], [-12.1185, -77.0125], [-12.0885, -77.0325], [-12.0685, -77.0725]],
+                {}
+            );
+        
+</script>
+</html>
